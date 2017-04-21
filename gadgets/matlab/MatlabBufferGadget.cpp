@@ -93,6 +93,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // There may be a more efficient way to do this.
                 GDEBUG("Creating data packet #%i...\n", p+1);
                 
+                // (RO) indexes of data to be split
+                size_t beg = roundf(float(p  )*step       );
+                size_t end = roundf(float(p+1)*step - 1.0f);
+                
                 //void *packet = malloc( (end-beg)*sizeof(recon_data->rbit_[i].data_.data_[0]) );
                 //std::copy( &(recon_data->rbit_[i].data_.data_[beg]),
                 //           &(recon_data->rbit_[i].data_.data_[end]),
@@ -112,10 +116,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                                     recon_data->rbit_[i].data_.data_.get_size(4)*
                                     recon_data->rbit_[i].data_.data_.get_size(5)*
                                     recon_data->rbit_[i].data_.data_.get_size(6);
-                                    
-                // (RO) indexes of data to be split
-                size_t beg = roundf(float(p  )*step       );
-                size_t end = roundf(float(p+1)*step - 1.0f);
                 
                 std::copy(  &(recon_data->rbit_[i].data_.data_[0]) + beg*bytes_dim_1,
                             &(recon_data->rbit_[i].data_.data_[0]) + end*bytes_dim_1,
