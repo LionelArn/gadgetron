@@ -162,7 +162,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Step 7...\n");
                 
-                free(packet);
+                //free(packet);
                 //auto mxdata = hoNDArrayToMatlab(&packet);
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
