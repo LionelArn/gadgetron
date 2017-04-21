@@ -24,9 +24,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be sent.
     size_t max_data_size = 2e9;
     
-    // compute the data size in bytes
+    // compute the data size in bytes (omitting the reference part)
+    // There is probably a cleaner way to do it.
     size_t data_bytes = 0;
-    
     for (int i=0; i < recon_data->rbit_.size(); i++)
     {
         size_t bytes = sizeof(recon_data->rbit_[i].data_.data_[0]);   
@@ -35,9 +35,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         data_bytes += bytes;
     }
     
-    GDEBUG("Data size: %lu bytes\n", data_bytes);
+    GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(sizeof(recon_data->rbit_) < max_data_size) 
+    if(data_bytes < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
