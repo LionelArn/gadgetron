@@ -36,7 +36,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     for (size_t i = 0; i < ndim; i++) 
     {
         data_dims[i] = recon_data->rbit_[0].data_.data_.get_size(i);
-        GDEBUG("rbit_[0].data_.data_ dim: %lu \n", (long unsigned) data_dims[i]);
+        GDEBUG("rbit_[0].data_.data_ dim: %lu \n", (long unsigned) recon_data->rbit_[0].data_.data_.get_size(i));
     }
     
     
