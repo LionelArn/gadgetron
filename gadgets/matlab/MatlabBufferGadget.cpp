@@ -143,16 +143,16 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
                 
-                auto mxdata =  mxCreateNumericMatrix(0,0, MatlabClassID< (std::complex<float>) >::value, isComplex< std::complex<float> >::value);
+                auto mxdata =  mxCreateNumericMatrix(0,0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata,packet_dims,packet_ndim);
-                mxSetData(mxdata,raw_data);
-                
+                mxSetData(mxdata,packet);
+                free(packet);
                 //auto mxdata = hoNDArrayToMatlab(&packet);
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 
-                engPutVariable(engine_, "data_" + to_string(i) + "_" + to_sring(p), mxdata);
-                free(packet);
+                engPutVariable(engine_, "data_" + std::to_string(i) + "_" + to_sring(p), mxdata);
+                
                 
                 /*
                 // do the same for the reference
