@@ -30,6 +30,14 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     GDEBUG("rbit_[0].data_ size is %lu bytes\n",            (long unsigned) sizeof(recon_data->rbit_[0].data_));
     GDEBUG("rbit_[0].data_.data_ size is %lu bytes\n",      (long unsigned) sizeof(recon_data->rbit_[0].data_.data_));
     GDEBUG("rbit_[0].data_.data_[0] size is %lu bytes\n",   (long unsigned) sizeof(recon_data->rbit_[0].data_.data_[0]));
+    GDEBUG("rbit_[0].data_.data_[0][0] size is %lu bytes\n",(long unsigned) sizeof(recon_data->rbit_[0].data_.data_[0][0]));
+    
+    GDEBUG("*rbit_ size is %lu bytes\n",                     (long unsigned) sizeof(*recon_data->rbit_));
+    GDEBUG("*rbit_[0] size is %lu bytes\n",                  (long unsigned) sizeof(*recon_data->rbit_[0]));
+    GDEBUG("*rbit_[0].data_ size is %lu bytes\n",            (long unsigned) sizeof(*recon_data->rbit_[0].data_));
+    GDEBUG("*rbit_[0].data_.data_ size is %lu bytes\n",      (long unsigned) sizeof(*recon_data->rbit_[0].data_.data_));
+    GDEBUG("*rbit_[0].data_.data_[0] size is %lu bytes\n",   (long unsigned) sizeof(*recon_data->rbit_[0].data_.data_[0]));
+    GDEBUG("*rbit_[0].data_.data_[0][0] size is %lu bytes\n",(long unsigned) sizeof(*recon_data->rbit_[0].data_.data_[0][0]));
     if(sizeof(recon_data->rbit_) < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
