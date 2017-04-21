@@ -26,6 +26,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     // compute the data size in bytes (omitting the reference part)
     // There is probably a cleaner way to do it.
+    // get_number_of_bytes()
     size_t data_bytes = 0;
     for (int i=0; i < recon_data->rbit_.size(); i++)
     {
@@ -124,8 +125,24 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 // convert the packet to MALTAB array and send it
                 GDEBUG("Sending data packet #%i...\n", p+1);
-                auto mxdata = hoNDArrayToMatlab(&packet);
-                engPutVariable(engine_, "data_" + to_sring(i) + "_" + to_sring(p), mxdata);
+                
+                mwSize packet_ndim = input->get_number_of_dimensions();
+                mwSize* packet_dims = new mwSize[packet_ndim];
+                for (size_t i = 0; i < packet_ndim; i++)
+                    packet_dims[i] = input->get_size(i);
+
+                //std::complex<float> * raw_data = (std::complex<float> *) mxCalloc(input->get_number_of_elements(), sizeof(std::complex<float>));
+                
+                //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
+                
+                auto mxdata =  mxCreateNumericMatrix(0,0,MatlabClassID< (std::complex<float>) >::value, isComplex< std::complex<float> >::value);
+                mxSetDimensions(mxdata,packet_dims,packet_ndim);
+                mxSetData(mxdata,raw_data);
+                
+                //auto mxdata = hoNDArrayToMatlab(&packet);
+                
+                
+                engPutVariable(engine_, "data_" + to_string(i) + "_" + to_sring(p), mxdata);
                 free(packet);
                 
                 /*
