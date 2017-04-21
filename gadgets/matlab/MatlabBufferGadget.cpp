@@ -126,7 +126,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
 
                 
-                std::complex<float>* packet = (std::complex<float>*) malloc( (end-beg)*bytes_dim_1 );
+                //std::complex<float> * packet = (std::complex<float>*)  malloc(  (end-beg)*bytes_dim_1 );
+                std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg)*bytes_dim_1/sizeof(std::complex<float>), sizeof(std::complex<float>));
                 
                 memcpy(packet, &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg)*bytes_dim_1);
                 
@@ -139,7 +140,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 for (size_t j = 1; j < packet_ndim; j++)
                     packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
 
-                //std::complex<float> * raw_data = (std::complex<float> *) mxCalloc(input->get_number_of_elements(), sizeof(std::complex<float>));
                 
                 //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
                 
