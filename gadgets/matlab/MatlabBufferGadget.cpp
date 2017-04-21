@@ -24,7 +24,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     // 2e9 bytes data is the published (as of 2017a) hardcoded limit that engPutVariable can transfer.
     // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be sent.
     size_t max_data_size = 2e9;
-    GDEBUG("Bucket size is %lu bytes\n", (long unsigned) sizeof(recon_data->rbit_[i].data_));
+    GDEBUG("Bucket size is %lu bytes\n", (long unsigned) sizeof(recon_data->rbit_[0].data_));
     if(sizeof(recon_data->rbit_) < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
