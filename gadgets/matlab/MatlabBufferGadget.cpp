@@ -151,7 +151,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 
-                engPutVariable(engine_, "data_" + std::to_string(i) + "_" + to_sring(p), mxdata);
+                engPutVariable(engine_, "data_" + std::to_string(i) + "_" + std::to_string(p), mxdata);
                 
                 
                 /*
@@ -168,7 +168,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
                     // convert the ref packet to MALTAB array and send it
                     GDEBUG("Sending reference packet #%i...\n", p+1);
-                    engPutVariable(engine_, "ref_" + to_sring(i) + "_" + to_sring(p), mxdata_ref);
+                    engPutVariable(engine_, "ref_" + std::to_string(i) + "_" + std::to_string(p), mxdata_ref);
                     free(packet_ref);
                 }*/
             }
@@ -186,22 +186,22 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             string concat_ref  = "[";
             for(int p = 0; p < n_packets; p++)
             {
-                concat_data += "data_" + to_sring(i) + "_" + to_sring(p) + "; ";
+                concat_data += "data_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
                 if (recon_data->rbit_[i].ref_)
-                    concat_data += "ref_" + to_sring(i) + "_" + to_sring(p) + "; ";
+                    concat_data += "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
             }
             
             // send the concatenation command to MATLAB
-            send_matlab_command("recon_data.data(" + to_string(i) + ").data  = " + concat_data + "];");
+            send_matlab_command("recon_data.data(" + std::to_string(i) + ").data  = " + concat_data + "];");
             if (recon_data->rbit_[i].ref_)
-                send_matlab_command("recon_data.ref(" + to_string(i) + ").data  = " + concat_ref + "];");
+                send_matlab_command("recon_data.ref(" + std::to_string(i) + ").data  = " + concat_ref + "];");
             
             // clear the MATLAB data copies
             for(int p = 0; p < n_packets; p++)
             {
-                send_matlab_command("clear " + "data_" + to_sring(i) + "_" + to_sring(p) + "; ");
+                send_matlab_command("clear " + "data_" + std::to_string(i) + "_" + std::to_string(p) + "; ");
                 if (recon_data->rbit_[i].ref_)
-                    send_matlab_command("clear " + "ref_" + to_sring(i) + "_" + to_sring(p) + "; ");
+                    send_matlab_command("clear " + "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ");
             }
         }        */
     }
