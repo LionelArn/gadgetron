@@ -24,11 +24,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     // 2e9 bytes data is the published (as of 2017a) hardcoded limit that engPutVariable can transfer.
     // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be sent.
     size_t max_data_size = 2e9;
-    GDEBUG("Max bucket size is %lu bytes\n",        (long unsigned) max_data_size);
-    GDEBUG("rbit_ size is %lu bytes\n",             (long unsigned) sizeof(recon_data->rbit_));
-    GDEBUG("rbit_[0] size is %lu bytes\n",          (long unsigned) sizeof(recon_data->rbit_[0]));
-    GDEBUG("rbit_[0].data_ size is %lu bytes\n",    (long unsigned) sizeof(recon_data->rbit_[0].data_));
-    GDEBUG("rbit_[0].data_[0] size is %lu bytes\n", (long unsigned) sizeof(recon_data->rbit_[0].data_[0]));
+    GDEBUG("Max bucket size is %lu bytes\n",                (long unsigned) max_data_size);
+    GDEBUG("rbit_ size is %lu bytes\n",                     (long unsigned) sizeof(recon_data->rbit_));
+    GDEBUG("rbit_[0] size is %lu bytes\n",                  (long unsigned) sizeof(recon_data->rbit_[0]));
+    GDEBUG("rbit_[0].data_ size is %lu bytes\n",            (long unsigned) sizeof(recon_data->rbit_[0].data_));
+    GDEBUG("rbit_[0].data_.data_ size is %lu bytes\n",      (long unsigned) sizeof(recon_data->rbit_[0].data_.data_));
+    GDEBUG("rbit_[0].data_.data_[0] size is %lu bytes\n",   (long unsigned) sizeof(recon_data->rbit_[0].data_.data_[0]));
     if(sizeof(recon_data->rbit_) < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
