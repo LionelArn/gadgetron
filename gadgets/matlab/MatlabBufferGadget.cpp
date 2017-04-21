@@ -127,12 +127,18 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
                 
                 //std::complex<float> * packet = (std::complex<float>*)  malloc(  (end-beg)*bytes_dim_1 );
+                
+                GDEBUG("Step 1...\n");
+                
                 std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg)*bytes_dim_1/sizeof(std::complex<float>), sizeof(std::complex<float>));
+                
+                GDEBUG("Step 2...\n");
                 
                 memcpy(packet, &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg)*bytes_dim_1);
                 
                 
-
+                GDEBUG("Step 3...\n");
+                
                 // convert the packet to MALTAB array
                 mwSize packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
                 mwSize* packet_dims = new mwSize[packet_ndim];
@@ -140,12 +146,22 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 for (size_t j = 1; j < packet_ndim; j++)
                     packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
 
+                GDEBUG("Step 4...\n");
                 
                 //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
                 
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
+                
+                GDEBUG("Step 5...\n");
+                
                 mxSetDimensions(mxdata,packet_dims,packet_ndim);
+                
+                GDEBUG("Step 6...\n");
+                
                 mxSetData(mxdata,packet);
+                
+                GDEBUG("Step 7...\n");
+                
                 free(packet);
                 //auto mxdata = hoNDArrayToMatlab(&packet);
                 
