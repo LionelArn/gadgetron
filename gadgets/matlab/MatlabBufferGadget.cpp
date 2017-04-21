@@ -103,6 +103,15 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 //           &(recon_data->rbit_[i].data_.data_[end]),
                 //           &(packet[0]));
                 //auto mxdata = hoNDArrayToMatlab(&packet);
+                
+                size_t bytes_dim_1= sizeof(recon_data->rbit_[i].data_.data_[0])*
+                                    recon_data->rbit_[i].data_.data_.get_size(1)*
+                                    recon_data->rbit_[i].data_.data_.get_size(2)*
+                                    recon_data->rbit_[i].data_.data_.get_size(3)*
+                                    recon_data->rbit_[i].data_.data_.get_size(4)*
+                                    recon_data->rbit_[i].data_.data_.get_size(5)*
+                                    recon_data->rbit_[i].data_.data_.get_size(6);
+                /*
                 std::complex<float> packet  [end-beg]
                                             [recon_data->rbit_[i].data_.data_.get_size(1)]
                                             [recon_data->rbit_[i].data_.data_.get_size(2)]
@@ -110,37 +119,37 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                                             [recon_data->rbit_[i].data_.data_.get_size(4)]
                                             [recon_data->rbit_[i].data_.data_.get_size(5)]
                                             [recon_data->rbit_[i].data_.data_.get_size(6)];
+                 std::copy(  &(recon_data->rbit_[i].data_.data_[0]) + beg*bytes_dim_1,
+                             &(recon_data->rbit_[i].data_.data_[0]) + end*bytes_dim_1,
+                             (packet[0][0][0][0][0][0][0]));
+                 */
                 
-                size_t bytes_dim_1= recon_data->rbit_[i].data_.data_.get_size(1)*
-                                    recon_data->rbit_[i].data_.data_.get_size(2)*
-                                    recon_data->rbit_[i].data_.data_.get_size(3)*
-                                    recon_data->rbit_[i].data_.data_.get_size(4)*
-                                    recon_data->rbit_[i].data_.data_.get_size(5)*
-                                    recon_data->rbit_[i].data_.data_.get_size(6);
+
                 
-                std::copy(  &(recon_data->rbit_[i].data_.data_[0]) + beg*bytes_dim_1,
-                            &(recon_data->rbit_[i].data_.data_[0]) + end*bytes_dim_1,
-                            (packet[0][0][0][0][0][0][0]));
+                std::complex<float>* packet = (std::complex<float>*) malloc( (end-beg)*bytes_dim_1 );
+                
+                memcpy(packet, &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg)*bytes_dim_1);
                 
                 
-                // convert the packet to MALTAB array and send it
-                GDEBUG("Sending data packet #%i...\n", p+1);
-                
-                mwSize packet_ndim = input->get_number_of_dimensions();
+
+                // convert the packet to MALTAB array
+                mwSize packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
                 mwSize* packet_dims = new mwSize[packet_ndim];
-                for (size_t i = 0; i < packet_ndim; i++)
-                    packet_dims[i] = input->get_size(i);
+                packet_dims[0] = end-beg;
+                for (size_t j = 1; j < packet_ndim; j++)
+                    packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
 
                 //std::complex<float> * raw_data = (std::complex<float> *) mxCalloc(input->get_number_of_elements(), sizeof(std::complex<float>));
                 
                 //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
                 
-                auto mxdata =  mxCreateNumericMatrix(0,0,MatlabClassID< (std::complex<float>) >::value, isComplex< std::complex<float> >::value);
+                auto mxdata =  mxCreateNumericMatrix(0,0, MatlabClassID< (std::complex<float>) >::value, isComplex< std::complex<float> >::value);
                 mxSetDimensions(mxdata,packet_dims,packet_ndim);
                 mxSetData(mxdata,raw_data);
                 
                 //auto mxdata = hoNDArrayToMatlab(&packet);
                 
+                GDEBUG("Sending data packet #%i...\n", p+1);
                 
                 engPutVariable(engine_, "data_" + to_string(i) + "_" + to_sring(p), mxdata);
                 free(packet);
