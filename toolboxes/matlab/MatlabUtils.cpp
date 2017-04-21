@@ -565,7 +565,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 	}
 
 	//Add headers
-	std::cout << "Adding headers " << std::endl;
+	std::cout << "Adding headers...";
 	mwSize num_headers = buffer->headers_.get_number_of_elements();
 	auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
 	memcpy(mxGetData(mxheaders),buffer->headers_.get_data_ptr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
@@ -573,7 +573,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
 	auto samplingdescription = samplingdescriptionToMatlabStruct(&buffer->sampling_);
 	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
-
+    std::cout << " done." << std::endl;
 	return mxstruct;
 
 
