@@ -18,27 +18,24 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	mwSize nencoding_spaces = recon_data->rbit_.size();
 
 	const char* fieldnames[2] = {"data","reference"};
-	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames);
-	//auto reconArray = mxCreateCellArray(1,&nencoding_spaces);
+	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames); // what is this mysterious encoding_spaces ?
 
     // 2e9 bytes data is the published (as of 2017a) hardcoded limit that engPutVariable can transfer.
     // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be sent.
     size_t max_data_size = 2e9;
-    GDEBUG("Max bucket size is %lu bytes\n",                (long unsigned) max_data_size);
-    GDEBUG("rbit_ size is %lu bytes\n",                     (long unsigned) sizeof(recon_data->rbit_));
-    GDEBUG("rbit_[0] size is %lu bytes\n",                  (long unsigned) sizeof(recon_data->rbit_[0]));
-    GDEBUG("rbit_[0].data_ size is %lu bytes\n",            (long unsigned) sizeof(recon_data->rbit_[0].data_));
-    GDEBUG("rbit_[0].data_.data_ size is %lu bytes\n",      (long unsigned) sizeof(recon_data->rbit_[0].data_.data_));
-    //GDEBUG("rbit_[0].data_.data_[0] size is %lu bytes\n",   (long unsigned) sizeof(recon_data->rbit_[0].data_.data_[0]));
     
-    mwSize ndim = recon_data->rbit_[0].data_.data_.get_number_of_dimensions();
-    mwSize* data_dims = new mwSize[ndim];
-    for (size_t i = 0; i < ndim; i++) 
+    // compute the data size in bytes
+    size_t data_bytes = 0;
+    
+    for (int i=0; i < recon_data->rbit_.size(); i++)
     {
-        data_dims[i] = recon_data->rbit_[0].data_.data_.get_size(i);
-        GDEBUG("rbit_[0].data_.data_ dim: %lu \n", (long unsigned) recon_data->rbit_[0].data_.data_.get_size(i));
+        size_t bytes = sizeof(recon_data->rbit_[i].data_.data_[0]);   
+        for(int j=0; j<recon_data->rbit_[i].data_.data_.get_number_of_dimensions(); ++j)
+            bytes *= recon_data->rbit_[i].data_.data_.get_size(j);
+        data_bytes += bytes;
     }
     
+    GDEBUG("Data size: %lu bytes\n", data_bytes);
     
     if(sizeof(recon_data->rbit_) < max_data_size) 
     {
