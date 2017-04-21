@@ -143,7 +143,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 //memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
                 
-                auto mxdata =  mxCreateNumericMatrix(0,0, mxSINGLE_CLASS, mxCOMPLEX);
+                auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata,packet_dims,packet_ndim);
                 mxSetData(mxdata,packet);
                 free(packet);
@@ -151,7 +151,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 
-                engPutVariable(engine_, "data_" + std::to_string(i) + "_" + std::to_string(p), mxdata);
+                std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
+                engPutVariable(engine_, cmd.c_str(), mxdata);
                 
                 
                 /*
