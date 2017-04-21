@@ -31,9 +31,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     GDEBUG("rbit_[0].data_.data_ size is %lu bytes\n",      (long unsigned) sizeof(recon_data->rbit_[0].data_.data_));
     //GDEBUG("rbit_[0].data_.data_[0] size is %lu bytes\n",   (long unsigned) sizeof(recon_data->rbit_[0].data_.data_[0]));
     
-    for (int i = 0; i < 256; i++)
-        GDEBUG("rbit_[0].data_.data_[0]: (%f, %f)\n", real(recon_data->rbit_[0].data_.data_[i*8]),
-                                                      imag(recon_data->rbit_[0].data_.data_[i*8]));
+    mwSize ndim = recon_data->rbit_[0].data_.data_->get_number_of_dimensions();
+    mwSize* dims = new mwSize[ndim];
+    for (size_t i = 0; i < ndim; i++)
+        dims[i] = input->get_size(i);
     
     if(sizeof(recon_data->rbit_) < max_data_size) 
     {
