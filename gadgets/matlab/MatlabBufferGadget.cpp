@@ -62,8 +62,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         // and reference.data) into n_packets in the RO dimension. After all
         // packets are sent, MATLAB reconcatenates everything.
         
-        int n_packets = ceil( float(sizeof(recon_data->rbit_)) / float(max_data_size) );
-
+        int n_packets = ceil( float(data_bytes) / float(max_data_size) );
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
@@ -78,17 +77,16 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 mxSetField(reconArray,i,"reference",mxref);
             }
             
-            /*
+            
             // send the packets
-            size_t n_RO = sizeof(recon_data->rbit_[i].data_.data_) / sizeof(recon_data->rbit_[i].data_.data_[0]);
-            float step = float(n_RO)/float(n_packets);
+            //size_t n_RO = sizeof(recon_data->rbit_[i].data_.data_) / sizeof(recon_data->rbit_[i].data_.data_[0]);
+            
+            float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
             
             GDEBUG("Starting to process packets for index %i:\n", i+1);
             for(int p = 0; p < n_packets; p++)
             {
-                // indexes of data to be split
-                size_t beg = roundf(float(p  )*step       );
-                size_t end = roundf(float(p+1)*step - 1.0f);
+
                 
                 // create the packet. A copy of the data is being done here,
                 // which overall increase the RAM usage if packets are needed.
@@ -100,19 +98,37 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 //           &(recon_data->rbit_[i].data_.data_[end]),
                 //           &(packet[0]));
                 //auto mxdata = hoNDArrayToMatlab(&packet);
-                decltype(recon_data->rbit_[i].data_.data_) packet [end-beg]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0])                / sizeof(recon_data->rbit_[i].data_.data_[0][0])]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0][0])             / sizeof(recon_data->rbit_[i].data_.data_[0][0][0])]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0][0][0])          / sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0])]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0])       / sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0][0])]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0][0])    / sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0][0][0])]
-                            [sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0][0][0]) / sizeof(recon_data->rbit_[i].data_.data_[0][0][0][0][0][0][0])]
+                std::complex<float> packet  [end-beg]
+                                            [recon_data->rbit_[i].data_.data_.get_size(1)]
+                                            [recon_data->rbit_[i].data_.data_.get_size(2)]
+                                            [recon_data->rbit_[i].data_.data_.get_size(3)]
+                                            [recon_data->rbit_[i].data_.data_.get_size(4)]
+                                            [recon_data->rbit_[i].data_.data_.get_size(5)]
+                                            [recon_data->rbit_[i].data_.data_.get_size(6)];
+                
+                size_t bytes_dim_1= recon_data->rbit_[i].data_.data_.get_size(1)*
+                                    recon_data->rbit_[i].data_.data_.get_size(2)*
+                                    recon_data->rbit_[i].data_.data_.get_size(3)*
+                                    recon_data->rbit_[i].data_.data_.get_size(4)*
+                                    recon_data->rbit_[i].data_.data_.get_size(5)*
+                                    recon_data->rbit_[i].data_.data_.get_size(6);
+                                    
+                // (RO) indexes of data to be split
+                size_t beg = roundf(float(p  )*step       );
+                size_t end = roundf(float(p+1)*step - 1.0f);
+                
+                std::copy(  &(recon_data->rbit_[i].data_.data_[0]) + beg*bytes_dim_1,
+                            &(recon_data->rbit_[i].data_.data_[0]) + end*bytes_dim_1,
+                            (packet[0][0][0][0][0][0][0]));
+                
                 
                 // convert the packet to MALTAB array and send it
                 GDEBUG("Sending data packet #%i...\n", p+1);
+                auto mxdata = hoNDArrayToMatlab(&packet);
                 engPutVariable(engine_, "data_" + to_sring(i) + "_" + to_sring(p), mxdata);
                 free(packet);
                 
+                /*
                 // do the same for the reference
                 if (recon_data->rbit_[i].ref_)
                 {
@@ -128,8 +144,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     GDEBUG("Sending reference packet #%i...\n", p+1);
                     engPutVariable(engine_, "ref_" + to_sring(i) + "_" + to_sring(p), mxdata_ref);
                     free(packet_ref);
-                }
-            }*/
+                }*/
+            }
         }
         engPutVariable(engine_, "recon_data", reconArray);
         
