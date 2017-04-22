@@ -105,7 +105,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                                         recon_data->rbit_[i].data_.data_.get_size(5)*
                                         recon_data->rbit_[i].data_.data_.get_size(6);
                 
-                GDEBUG("Dim 1 element bytes: %lu\n", (long unsigned) bytes_dim_1);
+                //GDEBUG("Dim 1 element bytes: %lu\n", (long unsigned) bytes_dim_1);
                 /*
                 std::complex<float> packet  [end-beg]
                                             [recon_data->rbit_[i].data_.data_.get_size(1)]
