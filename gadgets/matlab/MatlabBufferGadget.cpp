@@ -175,8 +175,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, cmd.c_str(), mxdata);
                 
-                
-                send_matlab_command("fprintf(2,evalc('whos'))");
+                std::string wcmd = "fprintf(2,evalc('whos'))";
+                send_matlab_command(wcmd);
                 
                 /*
                 // do the same for the reference
