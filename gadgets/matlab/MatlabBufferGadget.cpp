@@ -92,11 +92,13 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // create the packet. A copy of the data is being done here,
                 // which overall increase the RAM usage if packets are needed.
                 // There may be a more efficient way to do this.
-                GDEBUG("Creating data packet #%i...\n", p+1);
                 
                 // (RO) indexes of data to be split
                 size_t beg = roundf(float(p  )*step       );
                 size_t end = roundf(float(p+1)*step - 1.0f);
+                GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
+                
+
                 
                 //void *packet = malloc( (end-beg)*sizeof(recon_data->rbit_[i].data_.data_[0]) );
                 //std::copy( &(recon_data->rbit_[i].data_.data_[beg]),
@@ -132,12 +134,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg+1)*(bytes_dim_1/sizeof(std::complex<float>)), sizeof(std::complex<float>));
                 
-                GDEBUG("Step 2.1...\n");
+                //for (size_t j = beg; j <= end; j++)
+                //    GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
                 
-                for (size_t j = beg; j <= end; j++)
-                    GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
-                
-                GDEBUG("Step 2.2...\n");
+                GDEBUG("Step 2...\n");
                 
                 memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[beg]),  (end-beg+1)*bytes_dim_1);
                 
@@ -175,6 +175,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, cmd.c_str(), mxdata);
                 
+                
+                send_matlab_command("fprintf(2,evalc('whos'))");
                 
                 /*
                 // do the same for the reference
