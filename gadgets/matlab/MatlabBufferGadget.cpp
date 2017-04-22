@@ -294,7 +294,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 send_matlab_command(cmd);
                 if (recon_data->rbit_[i].ref_)
                 {
-                    cmd = "clear " + "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
+                    cmd = "clear ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
                     send_matlab_command(cmd);
                 }
             }
