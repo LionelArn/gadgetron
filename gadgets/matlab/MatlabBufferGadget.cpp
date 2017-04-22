@@ -135,15 +135,11 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 GDEBUG("Step 2.1...\n");
                 
                 for (size_t j = beg; j <= end; j++)
-                    //GDEBUG("%i: (%f + %f*i)\n", (int) j, *(&(recon_data->rbit_[i].data_.data_[0])+,imag(recon_data->rbit_[i].data_.data_[j]));
                     GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
                 
                 GDEBUG("Step 2.2...\n");
                 
-                // seg fault here at packets 2
-                //memcpy(&packet, &(recon_data->rbit_[i].data_.data_[beg]),  (end-beg+1)*bytes_dim_1);
                 memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[beg]),  (end-beg+1)*bytes_dim_1);
-                //memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg+1)*bytes_dim_1);
                 
                 
                 GDEBUG("Step 3...\n");
@@ -151,7 +147,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // convert the packet to MALTAB array
                 mwSize packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
                 mwSize* packet_dims = new mwSize[packet_ndim];
-                packet_dims[0] = end-beg;
+                packet_dims[0] = end-beg+1;
                 for (size_t j = 1; j < packet_ndim; j++)
                     packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
 
