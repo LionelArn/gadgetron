@@ -130,17 +130,17 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Step 1...\n");
                 
-                std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg)*bytes_dim_1/sizeof(std::complex<float>), sizeof(std::complex<float>));
+                std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg+1)*(bytes_dim_1/sizeof(std::complex<float>)), sizeof(std::complex<float>));
                 
                 GDEBUG("Step 2.1...\n");
                 
-                for (size_t j = beg; j < end; j++)
+                for (size_t j = beg; j <= end; j++)
                     GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
                 
                 GDEBUG("Step 2.2...\n");
                 
                 // seg fault here at packets 2
-                memcpy(packet, &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg)*bytes_dim_1);
+                memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg+1)*bytes_dim_1);
                 
                 
                 GDEBUG("Step 3...\n");
