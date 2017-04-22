@@ -269,8 +269,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             GDEBUG("MATLAB concatenation for index %i...\n", i+1);
             
             // create a concatenation MATLAB command
-            string concat_data = "[";
-            string concat_ref  = "[";
+            std::string concat_data = "[";
+            std::string concat_ref  = "[";
             for(int p = 0; p < n_packets; p++)
             {
                 concat_data += "data_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
