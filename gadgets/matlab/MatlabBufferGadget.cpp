@@ -175,8 +175,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 size_t packet_n_elem = (end-beg+1) * dim_1_n_elem;
                 
-                //std::complex<float> * packet = (std::complex<float> *) mxCalloc(packet_n_elem, sizeof(std::complex<float>));
-                
                 size_t packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
                 mwSize* packet_dims = new mwSize[packet_ndim];
                 packet_dims[0] = end-beg+1;
@@ -192,7 +190,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     imag_data[j] = imag(recon_data->rbit_[i].data_.data_[start + j]);
                     
                     if(j == packet_n_elem - 1)
-                        GDEBUG("Index: %lu, end: %lu\n", beg+j, end);
+                        GDEBUG("Index: start %lu, end: %lu\n", start, start + j);
                 }
 
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
