@@ -190,6 +190,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 for (size_t j = 0; j < packet_n_elem; j++){
                     real_data[j] = real(recon_data->rbit_[i].data_.data_[beg+j]);
                     imag_data[j] = imag(recon_data->rbit_[i].data_.data_[beg+j]);
+                    
+                    if(j == packet_n_elem - 1)
+                        GDEBUG("Index: %lu, end: %lu\n", beg+j, end);
                 }
 
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
