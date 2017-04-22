@@ -197,9 +197,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 mxSetData      (mxdata, real_data);
                 mxSetImagData  (mxdata, imag_data);
                 
-                auto ndims_test = mxGetNumberOfDimensions(mxdata);
-                GDEBUG("N dimensions: #%lu\n", (long unsigned) ndims_test);
-                
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
@@ -208,7 +205,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
                 
-                wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(end,:,:,1)))); drawnow; pause(10);";
+                wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(end,:,:,1)))); drawnow;"+
+                       "figure; imagesc(abs(squeeze(" + cmd + "(:,128,:,1)))); drawnow;"+
+                       "figure; imagesc(abs(squeeze(" + cmd + "(:,:,128,1)))); drawnow; pause(10);";
                 send_matlab_command(wcmd);
                 
                 /*
