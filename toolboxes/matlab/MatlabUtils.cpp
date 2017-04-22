@@ -555,7 +555,12 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
 	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
 
+    GDEBUG("BUFFERTOMATLABFUNCTION\n");
+    std::cout << "I SAID: BUFFERTOMATLABFUNCTION" << std::endl;
+        
     if(!omitData) {
+        GDEBUG("IBUFFERTOMATLABFUNCTION\n");
+        std::cout << "II SAID: BUFFERTOMATLABFUNCTION" << std::endl;
         auto mxdata = hoNDArrayToMatlab(&buffer->data_);
         mxSetField(mxstruct,0,"data",mxdata);
     }
