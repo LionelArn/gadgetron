@@ -98,13 +98,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 size_t end = roundf(float(p+1)*step - 1.0f);
                 GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
                 
-                size_t bytes_dim_1= sizeof(recon_data->rbit_[i].data_.data_[0])*
-                                    recon_data->rbit_[i].data_.data_.get_size(1)*
-                                    recon_data->rbit_[i].data_.data_.get_size(2)*
-                                    recon_data->rbit_[i].data_.data_.get_size(3)*
-                                    recon_data->rbit_[i].data_.data_.get_size(4)*
-                                    recon_data->rbit_[i].data_.data_.get_size(5)*
-                                    recon_data->rbit_[i].data_.data_.get_size(6);
+                size_t dim_1_n_elem =   recon_data->rbit_[i].data_.data_.get_size(1)*
+                                        recon_data->rbit_[i].data_.data_.get_size(2)*
+                                        recon_data->rbit_[i].data_.data_.get_size(3)*
+                                        recon_data->rbit_[i].data_.data_.get_size(4)*
+                                        recon_data->rbit_[i].data_.data_.get_size(5)*
+                                        recon_data->rbit_[i].data_.data_.get_size(6);
                 
                 GDEBUG("Dim 1 element bytes: %lu\n", (long unsigned) bytes_dim_1);
                 /*
@@ -174,8 +173,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 auto ndims_test = mxGetNumberOfDimensions(result);
                 */
                 
-                size_t bytes_packet  = (end-beg+1)*bytes_dim_1;
-                size_t packet_n_elem = bytes_packet/sizeof(std::complex<float>);
+                size_t packet_n_elem = (end-beg+1) * dim_1_n_elem;
+                
                 //std::complex<float> * packet = (std::complex<float> *) mxCalloc(packet_n_elem, sizeof(std::complex<float>));
                 
                 size_t packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
@@ -187,7 +186,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 
-                size_t start = beg*bytes_dim_1/sizeof(recon_data->rbit_[i].data_.data_[0]);
+                size_t start = beg*dim_1_n_elem;
                 for (size_t j = 0; j < packet_n_elem; j++){
                     real_data[j] = real(recon_data->rbit_[i].data_.data_[start + j]);
                     imag_data[j] = imag(recon_data->rbit_[i].data_.data_[start + j]);
