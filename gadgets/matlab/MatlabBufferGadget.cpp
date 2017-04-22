@@ -185,13 +185,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 
                 
-                
-                
-                
                 std::complex<float>* raw_data = recon_data->rbit_[i].data_.data_.get_data_ptr();
                 
                 // It appears that the data is not stores as I would have expected it.
-                // index 1,2,3,... actually follow a RO line, even though RO
+                // index 1,2,3,... actually follow the RO dimension, even though RO
                 // is the first dimension of the data. In MATLAB this is the other way around.
                 /*
                 size_t start = beg*dim_1_n_elem;
@@ -201,10 +198,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 }
                 GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
                  */
-                
+
                 size_t counter = 0;
                 for (size_t l = 0; l < dim_1_n_elem*recon_data->rbit_[i].data_.data_.get_size(0); l += recon_data->rbit_[i].data_.data_.get_size(0) ){
-                    
                     for (size_t j = 0; j < end-beg+1; j++){
                         
                         real_data[counter] = real(raw_data[beg + l + j]);
@@ -212,12 +208,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                         counter++;
                     }
                 }
-                
-                
-                //for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
-                //    GDEBUG("index: %lu: %f + %f*i\n", j, real(recon_data->rbit_[i].data_.data_[j]), imag(recon_data->rbit_[i].data_.data_[j]));
-                //}
-                
                     
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata, packet_dims, packet_ndim);
@@ -231,9 +221,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 
                 
-                
+                /*
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
+                */
                 
                 /*
                 wcmd = "fprintf(2,evalc(' [" + cmd + "(1:10,1,1,1)] '))";
@@ -243,10 +234,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 send_matlab_command(wcmd);
                 */
                 
+                /*
                 wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(round(size(" + cmd + ",1)/2),:,:,1)))); drawnow;"+
                        "figure; imagesc(abs(squeeze(" + cmd + "(:,128,:,1)))); drawnow;"+
                        "figure; imagesc(abs(squeeze(" + cmd + "(:,:,128,1)))); drawnow; pause(10);";
                 send_matlab_command(wcmd);
+                */
                 
                 /*
                 // do the same for the reference
@@ -269,7 +262,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         }
         engPutVariable(engine_, "recon_data", reconArray);
         
-        /*
+        
         //send the command to reconcatenate the data and ref
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
         {
@@ -282,7 +275,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             {
                 concat_data += "data_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
                 if (recon_data->rbit_[i].ref_)
-                    concat_data += "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
+                    concat_ref += "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
             }
             
             // send the concatenation command to MATLAB
@@ -297,7 +290,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 if (recon_data->rbit_[i].ref_)
                     send_matlab_command("clear " + "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ");
             }
-        }        */
+        }
     }
     
     cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
