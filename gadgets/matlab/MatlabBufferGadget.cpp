@@ -178,6 +178,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
                 
+                wcmd = "figure; imagesc(squeeze(" + cmd + "(end,:,:,1))); drawnow; pause(10);";
+                send_matlab_command(wcmd);
+                
                 /*
                 // do the same for the reference
                 if (recon_data->rbit_[i].ref_)
