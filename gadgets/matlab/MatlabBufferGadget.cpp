@@ -63,7 +63,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         // and reference.data) into n_packets in the RO dimension. After all
         // packets are sent, MATLAB reconcatenates everything.
         
-        int n_packets = 2;//ceil( float(data_bytes) / float(max_data_size) );
+        int n_packets = 1;//ceil( float(data_bytes) / float(max_data_size) );
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
@@ -209,6 +209,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 engPutVariable(engine_, cmd.c_str(), mxdata);
                 
                 std::string wcmd = "fprintf(2,evalc('whos'))";
+                send_matlab_command(wcmd);
+                
+                wcmd = "fprintf(2,evalc(' [" + cmd + "(1:10,1,1,1)]'' '))";
+                send_matlab_command(wcmd);
+                
+                wcmd = "fprintf(2,evalc(' [" + cmd + "(1,1,1,1:10)]'' '))";
                 send_matlab_command(wcmd);
                 
                 wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(size(" + cmd + ",1)/2,:,:,1)))); drawnow;"+
