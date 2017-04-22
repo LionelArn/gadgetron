@@ -279,22 +279,22 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             }
             
             // send the concatenation command to MATLAB
-            std::string cmd = "recon_data.data(" + std::to_string(i) + ").data  = " + concat_data + "];";
+            std::string cmd = "recon_data.data(" + std::to_string(i+1) + ").data  = " + concat_data + "];";
             send_matlab_command(cmd);
             if (recon_data->rbit_[i].ref_)
             {
-                cmd = "recon_data.ref(" + std::to_string(i) + ").data  = " + concat_ref + "];";
+                cmd = "recon_data.ref(" + std::to_string(i+1) + ").data  = " + concat_ref + "];";
                 send_matlab_command(cmd);
             }
             
             // clear the MATLAB data copies
             for(int p = 0; p < n_packets; p++)
             {
-                cmd = "recon_data.ref(" + std::to_string(i) + ").data  = " + concat_ref + "];";
+                cmd = "recon_data.ref(" + std::to_string(i+1) + ").data  = " + concat_ref + "];";
                 send_matlab_command(cmd);
                 if (recon_data->rbit_[i].ref_)
                 {
-                    cmd = "clear ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
+                    cmd = "clear ref_" + std::to_string(i+1) + "_" + std::to_string(p) + "; ";
                     send_matlab_command(cmd);
                 }
             }
