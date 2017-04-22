@@ -140,7 +140,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 GDEBUG("Step 2.2...\n");
                 
                 // seg fault here at packets 2
-                memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg+1)*bytes_dim_1);
+                //memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg+1)*bytes_dim_1);
+                memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[beg]),  (end-beg+1)*bytes_dim_1);
+                //memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[0])+beg*bytes_dim_1,  (end-beg+1)*bytes_dim_1);
                 
                 
                 GDEBUG("Step 3...\n");
