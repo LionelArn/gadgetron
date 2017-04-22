@@ -202,11 +202,14 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
                  */
                 
+                size_t counter = 0;
                 for (size_t l = 0; l < dim_1_n_elem*recon_data->rbit_[i].data_.data_.get_size(0); l += recon_data->rbit_[i].data_.data_.get_size(0) ){
                     
                     for (size_t j = 0; j < end-beg+1; j++){
-                        real_data[j] = real(raw_data[beg + l + j]);
-                        imag_data[j] = imag(raw_data[beg + l + j]);
+                        
+                        real_data[counter] = real(raw_data[beg + l + j]);
+                        imag_data[counter] = imag(raw_data[beg + l + j]);
+                        counter++;
                     }
                 }
                 
