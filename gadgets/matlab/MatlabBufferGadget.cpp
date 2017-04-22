@@ -202,7 +202,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
                  */
                 
-                for (size_t l = 0; l < dim_1_n_elem; l += recon_data->rbit_[i].data_.data_.get_size(0) ){
+                for (size_t l = 0; l < dim_1_n_elem*recon_data->rbit_[i].data_.data_.get_size(0); l += recon_data->rbit_[i].data_.data_.get_size(0) ){
                     
                     for (size_t j = 0; j < end-beg+1; j++){
                         real_data[j] = real(raw_data[beg + l + j]);
@@ -232,10 +232,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
                 
-                wcmd = "fprintf(2,evalc(' [" + cmd + "(1:10,1,1,1)]'' '))";
+                wcmd = "fprintf(2,evalc(' [" + cmd + "(1:10,1,1,1)] '))";
                 send_matlab_command(wcmd);
                 
-                wcmd = "fprintf(2,evalc(' [" + cmd + "(1,1,1,1:10)]'' '))";
+                wcmd = "fprintf(2,evalc(' [" + cmd + "(1,1,1,1:10)] '))";
                 send_matlab_command(wcmd);
                 
                 wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(size(" + cmd + ",1)/2,:,:,1)))); drawnow;"+
