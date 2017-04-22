@@ -42,6 +42,9 @@ template<class T> struct MatlabConverter {
 
 		T* raw_data = (T*) mxCalloc(input->get_number_of_elements(),sizeof(T));
 		memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
+        
+        GDEBUG("DATA TYPE: %i %i\n", MatlabClassID<T>::value, isComplex<T>::value);
+        
 		auto result =  mxCreateNumericMatrix(0,0,MatlabClassID<T>::value,isComplex<T>::value);
 		mxSetDimensions(result,dims,ndim);
 		mxSetData(result,raw_data);

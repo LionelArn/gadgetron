@@ -139,7 +139,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // convert the packet to MALTAB array
                 mwSize packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
                 mwSize* packet_dims = new mwSize[packet_ndim];
-                packet_dims[0] = end-beg;
+                packet_dims[0] = end-beg+1;
                 for (size_t j = 1; j < packet_ndim; j++)
                     packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
 
