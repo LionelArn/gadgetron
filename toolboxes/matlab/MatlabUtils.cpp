@@ -46,6 +46,8 @@ template<class T> struct MatlabConverter {
         GDEBUG("DATA TYPE: %i %i\n", MatlabClassID<T>::value, isComplex<T>::value);
         std::cout << "I SAID: DATA TYPE: " << MatlabClassID<T>::value << ", " << isComplex<T>::value << std::endl;
         
+        GDEBUG("1");
+        
 		auto result =  mxCreateNumericMatrix(0,0,MatlabClassID<T>::value,isComplex<T>::value);
 		mxSetDimensions(result,dims,ndim);
 		mxSetData(result,raw_data);
@@ -54,6 +56,7 @@ template<class T> struct MatlabConverter {
 	}
 
 	static hoNDArray<T> convert(mxArray* input) {
+        GDEBUG("2");
 		auto ndims = mxGetNumberOfDimensions(input);
 		auto dims = mxGetDimensions(input);
 		std::vector<size_t> dimensions(ndims);
@@ -136,7 +139,7 @@ template<class REAL,unsigned int N> struct MatlabConverter<vector_td<REAL,N>> {
     return MatlabConverter<REAL>::convert(&tmp);
   }
   static hoNDArray<vector_td<REAL,N>> convert(mxArray* matarray){
-
+GDEBUG("3");
     auto tmp = MatlabConverter<REAL>::convert(matarray);
     auto dims = *tmp.get_dimensions();
     if (dims[0] != N)
@@ -150,7 +153,7 @@ template<class REAL,unsigned int N> struct MatlabConverter<vector_td<REAL,N>> {
 };
 template<class REAL> struct MatlabConverter<complext<REAL>> {
 	static mxArray* convert(hoNDArray<complext<REAL>>* input){
-
+GDEBUG("4");
 		size_t ndim = input->get_number_of_dimensions();
 
 		//Matlab does not support to creation of 7D arrays, but 8,6 and 9 works just fine.
@@ -179,6 +182,7 @@ template<class REAL> struct MatlabConverter<complext<REAL>> {
 		return result;
 	}
 	static hoNDArray<complext<REAL> > convert(mxArray* input) {
+        GDEBUG("5");
 		auto ndims = mxGetNumberOfDimensions(input);
 		auto dims = mxGetDimensions(input);
 		std::vector<size_t> dimensions(ndims);
@@ -254,6 +258,7 @@ template<class REAL> struct MatlabConverter<std::complex<REAL>> {
 	}
 
 	static hoNDArray<std::complex<REAL>> convert(mxArray* input){
+        GDEBUG("6");
 		auto tmp = MatlabConverter<complext<REAL>>::convert(input);
 		return std::move(*((hoNDArray<std::complex<REAL>>*)&tmp));
 	}
@@ -268,6 +273,7 @@ template<class T> mxArray* hoNDArrayToMatlab(hoNDArray<T> * input){
 
 
 template<class T> hoNDArray<T> MatlabToHoNDArray(mxArray* data){
+    GDEBUG("7");
     return MatlabConverter<T>::convert(data);
 }
 
