@@ -235,13 +235,15 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
                 
+                /*
                 wcmd = "fprintf(2,evalc(' [" + cmd + "(1:10,1,1,1)] '))";
                 send_matlab_command(wcmd);
                 
                 wcmd = "fprintf(2,evalc(' [" + cmd + "(1,1,1,1:10)] '))";
                 send_matlab_command(wcmd);
+                */
                 
-                wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(size(" + cmd + ",1)/2,:,:,1)))); drawnow;"+
+                wcmd = "figure; imagesc(abs(squeeze(" + cmd + "(round(size(" + cmd + ",1)/2),:,:,1)))); drawnow;"+
                        "figure; imagesc(abs(squeeze(" + cmd + "(:,128,:,1)))); drawnow;"+
                        "figure; imagesc(abs(squeeze(" + cmd + "(:,:,128,1)))); drawnow; pause(10);";
                 send_matlab_command(wcmd);
