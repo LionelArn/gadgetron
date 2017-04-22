@@ -210,6 +210,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     send_matlab_command(cmd);
                 }
             }
+            
+            GDEBUG("Concatenation done.\n");
         }
     }
     
