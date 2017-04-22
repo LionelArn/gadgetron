@@ -38,7 +38,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(0)//data_bytes < max_data_size) 
+    if(data_bytes < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
@@ -63,7 +63,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         // and reference.data) into n_packets in the RO dimension. After all
         // packets are sent, MATLAB reconcatenates everything.
         
-        int n_packets = 1;//ceil( float(data_bytes) / float(max_data_size) );
+        int n_packets = ceil( float(data_bytes) / float(max_data_size) );
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
@@ -184,19 +184,37 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 
-                size_t start = beg*dim_1_n_elem;
                 
-                GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
+                
+                
                 
                 std::complex<float>* raw_data = recon_data->rbit_[i].data_.data_.get_data_ptr();
+                
+                // It appears that the data is not stores as I would have expected it.
+                // index 1,2,3,... actually follow a RO line, even though RO
+                // is the first dimension of the data. In MATLAB this is the other way around.
+                /*
+                size_t start = beg*dim_1_n_elem;
                 for (size_t j = 0; j < packet_n_elem; j++){
                     real_data[j] = real(raw_data[start + j]);
                     imag_data[j] = imag(raw_data[start + j]);
                 }
+                GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
+                 */
+                
+                for (size_t l = 0; l < dim_1_n_elem; l += recon_data->rbit_[i].data_.data_.get_size(0) ){
+                    
+                    for (size_t j = 0; j < end-beg+1; j++){
+                        real_data[j] = real(raw_data[beg + l + j]);
+                        imag_data[j] = imag(raw_data[beg + l + j]);
+                    }
+                }
+                
                 
                 //for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
                 //    GDEBUG("index: %lu: %f + %f*i\n", j, real(recon_data->rbit_[i].data_.data_[j]), imag(recon_data->rbit_[i].data_.data_[j]));
                 //}
+                
                     
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata, packet_dims, packet_ndim);
@@ -207,6 +225,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, cmd.c_str(), mxdata);
+                
+                
+                
                 
                 std::string wcmd = "fprintf(2,evalc('whos'))";
                 send_matlab_command(wcmd);
