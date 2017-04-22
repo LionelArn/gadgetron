@@ -188,7 +188,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
                 
-                complex<float>* raw_data = recon_data->rbit_[i].data_.data_->get_data_ptr();
+                std::complex<float>* raw_data = recon_data->rbit_[i].data_.data_->get_data_ptr();
                 for (size_t j = 0; j < packet_n_elem; j++){
                     real_data[j] = real(raw_data[start + j]);
                     imag_data[j] = imag(raw_data[start + j]);
