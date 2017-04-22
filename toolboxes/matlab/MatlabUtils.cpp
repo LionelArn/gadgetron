@@ -260,6 +260,8 @@ template<class REAL> struct MatlabConverter<std::complex<REAL>> {
 };
 
 template<class T> mxArray* hoNDArrayToMatlab(hoNDArray<T> * input){
+    GDEBUG("hoNDArrayToMatlab\n");
+    std::cout << "I SAID: hoNDArrayToMatlab" << std::endl;
     return MatlabConverter<T>::convert(input);
 
 }
