@@ -161,7 +161,7 @@ template<class REAL> struct MatlabConverter<complext<REAL>> {
 		REAL* real_data = (REAL*) mxCalloc(input->get_number_of_elements(),sizeof(REAL));
 		REAL* imag_data = (REAL*) mxCalloc(input->get_number_of_elements(),sizeof(REAL));
 
-		complext<REAL>* raw_data = input->get_data_ptr();
+		complext<REAL>* raw_data = input->get_data_ptr(); // LA: complext ?!
 		for (size_t i = 0; i < input->get_number_of_elements(); i++){
 			real_data[i] = real(raw_data[i]);
 			imag_data[i] = imag(raw_data[i]);

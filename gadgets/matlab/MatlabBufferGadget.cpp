@@ -188,14 +188,15 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
                 
+                complex<float>* raw_data = recon_data->rbit_[i].data_.data_->get_data_ptr();
                 for (size_t j = 0; j < packet_n_elem; j++){
-                    real_data[j] = real(recon_data->rbit_[i].data_.data_[start + j]);
-                    imag_data[j] = imag(recon_data->rbit_[i].data_.data_[start + j]);
+                    real_data[j] = real(raw_data[start + j]);
+                    imag_data[j] = imag(raw_data[start + j]);
                 }
                 
-                for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
-                    GDEBUG("index: %lu: %f + %f*i\n", j, real(recon_data->rbit_[i].data_.data_[j]), imag(recon_data->rbit_[i].data_.data_[j]));
-                }
+                //for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
+                //    GDEBUG("index: %lu: %f + %f*i\n", j, real(recon_data->rbit_[i].data_.data_[j]), imag(recon_data->rbit_[i].data_.data_[j]));
+                //}
                     
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata, packet_dims, packet_ndim);
