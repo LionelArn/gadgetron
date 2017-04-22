@@ -44,7 +44,6 @@ template<class T> struct MatlabConverter {
 		memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
         
         GDEBUG("DATA TYPE: %i %i\n", MatlabClassID<T>::value, isComplex<T>::value);
-        odekok
 		auto result =  mxCreateNumericMatrix(0,0,MatlabClassID<T>::value,isComplex<T>::value);
 		mxSetDimensions(result,dims,ndim);
 		mxSetData(result,raw_data);
