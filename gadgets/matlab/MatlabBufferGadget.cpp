@@ -135,8 +135,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 GDEBUG("Step 2.1...\n");
                 
                 for (size_t j = beg; j <= end; j++)
-                    GDEBUG("%i: (%f + %f*i)\n", (int) j, *(&(recon_data->rbit_[i].data_.data_[0])+,imag(recon_data->rbit_[i].data_.data_[j]));
-                    //GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
+                    //GDEBUG("%i: (%f + %f*i)\n", (int) j, *(&(recon_data->rbit_[i].data_.data_[0])+,imag(recon_data->rbit_[i].data_.data_[j]));
+                    GDEBUG("%i: (%f + %f*i)\n", (int) j, real(recon_data->rbit_[i].data_.data_[j]),imag(recon_data->rbit_[i].data_.data_[j]));
                 
                 GDEBUG("Step 2.2...\n");
                 
