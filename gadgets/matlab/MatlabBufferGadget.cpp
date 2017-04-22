@@ -38,7 +38,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(data_bytes < max_data_size) 
+    if(0)//data_bytes < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
@@ -63,7 +63,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         // and reference.data) into n_packets in the RO dimension. After all
         // packets are sent, MATLAB reconcatenates everything.
         
-        int n_packets = ceil( float(data_bytes) / float(max_data_size) );
+        int n_packets = 1;//ceil( float(data_bytes) / float(max_data_size) );
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
@@ -192,14 +192,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 for (size_t j = 0; j < packet_n_elem; j++){
                     real_data[j] = real(raw_data[start + j]);
                     imag_data[j] = imag(raw_data[start + j]);
-                }
-                
-                for (size_t i = 0; i < 10; i++){
-                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
-                }
-
-                for (size_t i = 10000; i < 10010; i++){
-                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
                 }
                 
                 //for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
