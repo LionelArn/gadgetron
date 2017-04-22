@@ -147,7 +147,7 @@ template<class REAL,unsigned int N> struct MatlabConverter<vector_td<REAL,N>> {
 template<class REAL> struct MatlabConverter<complext<REAL>> {
 	static mxArray* convert(hoNDArray<complext<REAL>>* input){
 
-        GDEBUG("convert\n");
+        GDEBUG("converting\n");
         
 		size_t ndim = input->get_number_of_dimensions();
 
@@ -172,7 +172,7 @@ template<class REAL> struct MatlabConverter<complext<REAL>> {
 		mxSetData(result,real_data);
 		mxSetImagData(result,imag_data);
 
-		auto ndims_test = mxGetNumberOfDimensions(result);
+		auto ndims_test = mxGetNumberOfDimensions(result); // LA: what is this ?
 
 		return result;
 	}

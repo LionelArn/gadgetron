@@ -133,6 +133,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 return result;
                 */
                 
+                // for some reason, this methods only sends some weird real data to matlab.
+                /*
                 std::complex<float> * packet = (std::complex<float> *) mxCalloc((end-beg+1)*(bytes_dim_1/sizeof(std::complex<float>)), sizeof(std::complex<float>));
                 memcpy(&(packet[0]), &(recon_data->rbit_[i].data_.data_[beg]),  (end-beg+1)*bytes_dim_1);
                 
@@ -146,6 +148,56 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
                 mxSetDimensions(mxdata,packet_dims,packet_ndim);
                 mxSetData(mxdata,packet);
+                */
+                
+                
+                /*
+                size_t ndim = input->get_number_of_dimensions();
+                mwSize* dims = new mwSize[ndim];
+                for (size_t i = 0; i < ndim; i++)
+                    dims[i] = input->get_size(i);
+
+                REAL* real_data = (REAL*) mxCalloc(input->get_number_of_elements(),sizeof(REAL));
+                REAL* imag_data = (REAL*) mxCalloc(input->get_number_of_elements(),sizeof(REAL));
+
+                complext<REAL>* raw_data = input->get_data_ptr();
+                for (size_t i = 0; i < input->get_number_of_elements(); i++){
+                    real_data[i] = real(raw_data[i]);
+                    imag_data[i] = imag(raw_data[i]);
+                }
+
+                auto result  =  mxCreateNumericMatrix(0,0,MatlabClassID<REAL>::value,isComplex<complext<REAL>>::value);
+                mxSetDimensions(result,dims,ndim);
+                mxSetData(result,real_data);
+                mxSetImagData(result,imag_data);
+
+                auto ndims_test = mxGetNumberOfDimensions(result);
+                */
+                
+                size_t bytes_packet = (end-beg+1)*bytes_dim_1;
+                
+                std::complex<float> * packet = (std::complex<float> *) mxCalloc(bytes_packet/sizeof(std::complex<float>), sizeof(std::complex<float>));
+                
+                size_t packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
+                mwSize* packet_dims = new mwSize[packet_ndim];
+                packet_dims[0] = end-beg+1;
+                for (size_t j = 1; j < packet_ndim; j++)
+                    packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
+
+                float* real_data = (float*) mxCalloc(bytes_packet/sizeof(float)/2, sizeof(float));
+                float* imag_data = (float*) mxCalloc(bytes_packet/sizeof(float)/2, sizeof(float));
+                
+                for (size_t j = 0; j < input->get_number_of_elements(); j++){
+                    real_data[j] = real(recon_data->rbit_[i].data_.data_[beg+j]);
+                    imag_data[j] = imag(recon_data->rbit_[i].data_.data_[beg+j]);
+                }
+
+                auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
+                mxSetDimensions(mxdata,packet_dims,packet_ndim);
+                mxSetData(mxdata,real_data);
+                mxSetImagData(mxdata,imag_data);
+                
+                
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 
