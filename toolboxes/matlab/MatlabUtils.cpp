@@ -42,12 +42,6 @@ template<class T> struct MatlabConverter {
 
 		T* raw_data = (T*) mxCalloc(input->get_number_of_elements(),sizeof(T));
 		memcpy(raw_data,input->get_data_ptr(),input->get_number_of_bytes());
-        
-        GDEBUG("DATA TYPE: %i %i\n", MatlabClassID<T>::value, isComplex<T>::value);
-        std::cout << "I SAID: DATA TYPE: " << MatlabClassID<T>::value << ", " << isComplex<T>::value << std::endl;
-        
-        GDEBUG("1");
-        
 		auto result =  mxCreateNumericMatrix(0,0,MatlabClassID<T>::value,isComplex<T>::value);
 		mxSetDimensions(result,dims,ndim);
 		mxSetData(result,raw_data);
@@ -56,7 +50,6 @@ template<class T> struct MatlabConverter {
 	}
 
 	static hoNDArray<T> convert(mxArray* input) {
-        GDEBUG("2");
 		auto ndims = mxGetNumberOfDimensions(input);
 		auto dims = mxGetDimensions(input);
 		std::vector<size_t> dimensions(ndims);
@@ -139,7 +132,7 @@ template<class REAL,unsigned int N> struct MatlabConverter<vector_td<REAL,N>> {
     return MatlabConverter<REAL>::convert(&tmp);
   }
   static hoNDArray<vector_td<REAL,N>> convert(mxArray* matarray){
-GDEBUG("3");
+
     auto tmp = MatlabConverter<REAL>::convert(matarray);
     auto dims = *tmp.get_dimensions();
     if (dims[0] != N)
@@ -153,7 +146,9 @@ GDEBUG("3");
 };
 template<class REAL> struct MatlabConverter<complext<REAL>> {
 	static mxArray* convert(hoNDArray<complext<REAL>>* input){
-GDEBUG("4");
+
+        GDEBUG("convert/n")
+        
 		size_t ndim = input->get_number_of_dimensions();
 
 		//Matlab does not support to creation of 7D arrays, but 8,6 and 9 works just fine.
@@ -182,7 +177,6 @@ GDEBUG("4");
 		return result;
 	}
 	static hoNDArray<complext<REAL> > convert(mxArray* input) {
-        GDEBUG("5");
 		auto ndims = mxGetNumberOfDimensions(input);
 		auto dims = mxGetDimensions(input);
 		std::vector<size_t> dimensions(ndims);
@@ -258,22 +252,18 @@ template<class REAL> struct MatlabConverter<std::complex<REAL>> {
 	}
 
 	static hoNDArray<std::complex<REAL>> convert(mxArray* input){
-        GDEBUG("6");
 		auto tmp = MatlabConverter<complext<REAL>>::convert(input);
 		return std::move(*((hoNDArray<std::complex<REAL>>*)&tmp));
 	}
 };
 
 template<class T> mxArray* hoNDArrayToMatlab(hoNDArray<T> * input){
-    GDEBUG("hoNDArrayToMatlab\n");
-    std::cout << "I SAID: hoNDArrayToMatlab" << std::endl;
     return MatlabConverter<T>::convert(input);
 
 }
 
 
 template<class T> hoNDArray<T> MatlabToHoNDArray(mxArray* data){
-    GDEBUG("7");
     return MatlabConverter<T>::convert(data);
 }
 
@@ -563,12 +553,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
 	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
 
-    GDEBUG("BUFFERTOMATLABFUNCTION\n");
-    std::cout << "I SAID: BUFFERTOMATLABFUNCTION" << std::endl;
-        
     if(!omitData) {
-        GDEBUG("IBUFFERTOMATLABFUNCTION\n");
-        std::cout << "II SAID: BUFFERTOMATLABFUNCTION" << std::endl;
         auto mxdata = hoNDArrayToMatlab(&buffer->data_);
         mxSetField(mxstruct,0,"data",mxdata);
     }
