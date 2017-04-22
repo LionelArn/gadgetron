@@ -168,11 +168,11 @@ template<class REAL> struct MatlabConverter<complext<REAL>> {
 		}
         
         for (size_t i = 0; i < 10; i++){
-            GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]))
+            GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
         }
         
         for (size_t i = 10000; i < 10010; i++){
-            GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]))
+            GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
         }
 
 		auto result  =  mxCreateNumericMatrix(0,0,MatlabClassID<REAL>::value,isComplex<complext<REAL>>::value);

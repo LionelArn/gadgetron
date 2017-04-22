@@ -195,11 +195,11 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 }
                 
                 for (size_t i = 0; i < 10; i++){
-                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]))
+                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
                 }
 
                 for (size_t i = 10000; i < 10010; i++){
-                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]))
+                    GDEBUG("%lu: %f + %f \n", i, real(raw_data[i]), imag(raw_data[i]));
                 }
                 
                 //for (size_t j = 0; j < start + packet_n_elem -1 + 2e9; j+=1000){
