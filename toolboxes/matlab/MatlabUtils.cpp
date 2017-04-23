@@ -581,11 +581,10 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
 
 mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size_t index_end) {
+    
     // create the packet. A copy of the data is being done here,
     // which overall increase the RAM usage if packets are needed.
     // There may be a more efficient way to do this.
-    GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
-
     size_t dim_1_n_elem =   buffer->data_.get_size(1)*
                             buffer->data_.get_size(2)*
                             buffer->data_.get_size(3)*
@@ -633,7 +632,7 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
     mxSetData      (mxdata, real_data);
     mxSetImagData  (mxdata, imag_data);
     
-    return mxdata
+    return mxdata;
 }
 
 static SamplingDescription MatlabStructToSamplingdescription(mxArray* mxstruct){

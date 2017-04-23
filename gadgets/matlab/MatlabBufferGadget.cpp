@@ -70,7 +70,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             
             for(int p = 0; p < n_packets; p++)
             {
-
+                GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
+                
                 // (RO) indexes of data to be split
                 size_t beg = roundf(float(p  )*step       );
                 size_t end = roundf(float(p+1)*step - 1.0f);
