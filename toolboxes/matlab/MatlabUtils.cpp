@@ -591,7 +591,9 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
                             buffer->data_.get_size(4)*
                             buffer->data_.get_size(5)*
                             buffer->data_.get_size(6);
-
+    
+    GDEBUG("s1: %lu: s2: %lu\n", dim_1_n_elem, buffer->data_.get_number_of_elements()/buffer->data_.get_size(0));
+    
     size_t packet_n_elem = (index_end-index_begin+1) * dim_1_n_elem;
 
     size_t packet_ndim = buffer->data_.get_number_of_dimensions();
