@@ -155,6 +155,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, cmd.c_str(), mxdata);
                 
+                mxFree(real_data);
+                mxFree(imag_data);
+                mxDestroyArray(mxdata);
+                
                 /*
                 // do the same for the reference
                 if (recon_data->rbit_[i].ref_)
