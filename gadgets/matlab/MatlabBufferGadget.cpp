@@ -31,19 +31,21 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     {
         data_bytes += recon_data->rbit_[i].data_.data_.get_number_of_bytes();
         if (recon_data->rbit_[i].ref_)
-            data_bytes += recon_data->rbit_[i].ref_.data_.get_number_of_bytes();
+            data_bytes += recon_data->rbit_[i].ref_.get_number_of_bytes();
     }
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
+    bool split_data = data_bytes >= max_data_size;
+    
     // the dataset is small enough to be sent all at once (original code)
     for (int i = 0; i <  recon_data->rbit_.size(); i++)
     {
-        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, data_bytes < max_data_size);
+        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, split_data);
         mxSetField(reconArray,i,"data",mxrecon);
         if (recon_data->rbit_[i].ref_)
         {
-            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr(), data_bytes < max_data_size);
+            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr(), split_data);
             mxSetField(reconArray,i,"reference",mxref);
         }
     }
@@ -52,7 +54,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     engPutVariable(engine_, "recon_data", reconArray);
     GDEBUG("done\n");
     
-    if(data_bytes >= max_data_size)
+    if(split_data)
     {
         // the dataset needs to be sent in multiple packets
         // The algorithm here splits the multidimensional arrays (data.data
