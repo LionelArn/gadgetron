@@ -592,11 +592,11 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
                             buffer->data_.get_size(5)*
                             buffer->data_.get_size(6);
 
-    size_t packet_n_elem = (end-beg+1) * dim_1_n_elem;
+    size_t packet_n_elem = (index_end-index_begin+1) * dim_1_n_elem;
 
     size_t packet_ndim = buffer->data_.get_number_of_dimensions();
     mwSize* packet_dims = new mwSize[packet_ndim];
-    packet_dims[0] = end-beg+1;
+    packet_dims[0] = index_end-index_begin+1;
     for (size_t j = 1; j < packet_ndim; j++)
         packet_dims[j] = buffer->data_.get_size(j);
 
@@ -609,20 +609,20 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
     // index 1,2,3,... actually follow the RO dimension, even though RO
     // is the first dimension of the data. In MATLAB this is the other way around.
     /*
-    size_t start = beg*dim_1_n_elem;
+    size_t start = index_begin*dim_1_n_elem;
     for (size_t j = 0; j < packet_n_elem; j++){
         real_data[j] = real(raw_data[start + j]);
         imag_data[j] = imag(raw_data[start + j]);
     }
-    GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
+    GDEBUG("Index: start %lu, index_end: %lu\n", start, start + packet_n_elem - 1);
      */
 
     size_t counter = 0;
     for (size_t l = 0; l < dim_1_n_elem*buffer->data_.get_size(0); l += buffer->data_.get_size(0) ){
-        for (size_t j = 0; j < end-beg+1; j++){
+        for (size_t j = 0; j < index_end-index_begin+1; j++){
 
-            real_data[counter] = real(raw_data[beg + l + j]);
-            imag_data[counter] = imag(raw_data[beg + l + j]);
+            real_data[counter] = real(raw_data[index_begin + l + j]);
+            imag_data[counter] = imag(raw_data[index_begin + l + j]);
             counter++;
         }
     }
