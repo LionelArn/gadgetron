@@ -578,6 +578,64 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
 
 }
+
+
+mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size_t index_end) {
+    // create the packet. A copy of the data is being done here,
+    // which overall increase the RAM usage if packets are needed.
+    // There may be a more efficient way to do this.
+    GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
+
+    size_t dim_1_n_elem =   buffer->data_.get_size(1)*
+                            buffer->data_.get_size(2)*
+                            buffer->data_.get_size(3)*
+                            buffer->data_.get_size(4)*
+                            buffer->data_.get_size(5)*
+                            buffer->data_.get_size(6);
+
+    size_t packet_n_elem = (end-beg+1) * dim_1_n_elem;
+
+    size_t packet_ndim = buffer->data_.get_number_of_dimensions();
+    mwSize* packet_dims = new mwSize[packet_ndim];
+    packet_dims[0] = end-beg+1;
+    for (size_t j = 1; j < packet_ndim; j++)
+        packet_dims[j] = buffer->data_.get_size(j);
+
+    float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+    float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+
+    std::complex<float>* raw_data = buffer->data_.get_data_ptr();
+
+    // It appears that the data is not stored as I would have expected it.
+    // index 1,2,3,... actually follow the RO dimension, even though RO
+    // is the first dimension of the data. In MATLAB this is the other way around.
+    /*
+    size_t start = beg*dim_1_n_elem;
+    for (size_t j = 0; j < packet_n_elem; j++){
+        real_data[j] = real(raw_data[start + j]);
+        imag_data[j] = imag(raw_data[start + j]);
+    }
+    GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
+     */
+
+    size_t counter = 0;
+    for (size_t l = 0; l < dim_1_n_elem*buffer->data_.get_size(0); l += buffer->data_.get_size(0) ){
+        for (size_t j = 0; j < end-beg+1; j++){
+
+            real_data[counter] = real(raw_data[beg + l + j]);
+            imag_data[counter] = imag(raw_data[beg + l + j]);
+            counter++;
+        }
+    }
+
+    auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
+    mxSetDimensions(mxdata, packet_dims, packet_ndim);
+    mxSetData      (mxdata, real_data);
+    mxSetImagData  (mxdata, imag_data);
+    
+    return mxdata
+}
+
 static SamplingDescription MatlabStructToSamplingdescription(mxArray* mxstruct){
 
 	SamplingDescription samp;

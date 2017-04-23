@@ -36,7 +36,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    bool split_data = false;//data_bytes >= max_data_size;
+    bool split_data = data_bytes >= max_data_size;
     
     // the dataset is small enough to be sent all at once (original code)
     for (int i = 0; i <  recon_data->rbit_.size(); i++)
@@ -49,10 +49,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             mxSetField(reconArray,i,"reference",mxref);
         }
     }
-
-    GDEBUG("Sending the whole buckets...\n");
     engPutVariable(engine_, "recon_data", reconArray);
-    GDEBUG("done\n");
     
     if(split_data)
     {
@@ -65,89 +62,20 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
-        /*
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
-        {            
-            // Create the regular MATLAB structure, but omits the data for the fields "data" and "reference".
-            auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, true);
-            mxSetField(reconArray,i,"data",mxrecon);
-            if (recon_data->rbit_[i].ref_)
-            {
-                auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr(), true);
-                mxSetField(reconArray,i,"reference",mxref);
-            }
-            
-            engPutVariable(engine_, "recon_data", reconArray);
-        */
-        for (int i = 0; i <  recon_data->rbit_.size(); i++)
-        {   
-            
-            // send the packets
-            //size_t n_RO = sizeof(recon_data->rbit_[i].data_.data_) / sizeof(recon_data->rbit_[i].data_.data_[0]);
+        {
+            GDEBUG("Starting to process packets for index %i:\n", i+1);
             
             float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
-            GDEBUG("Starting to process packets for index %i:\n", i+1);
             
             for(int p = 0; p < n_packets; p++)
             {
 
-                
-                // create the packet. A copy of the data is being done here,
-                // which overall increase the RAM usage if packets are needed.
-                // There may be a more efficient way to do this.
-                
                 // (RO) indexes of data to be split
                 size_t beg = roundf(float(p  )*step       );
                 size_t end = roundf(float(p+1)*step - 1.0f);
-                GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
                 
-                size_t dim_1_n_elem =   recon_data->rbit_[i].data_.data_.get_size(1)*
-                                        recon_data->rbit_[i].data_.data_.get_size(2)*
-                                        recon_data->rbit_[i].data_.data_.get_size(3)*
-                                        recon_data->rbit_[i].data_.data_.get_size(4)*
-                                        recon_data->rbit_[i].data_.data_.get_size(5)*
-                                        recon_data->rbit_[i].data_.data_.get_size(6);
-                
-                
-                size_t packet_n_elem = (end-beg+1) * dim_1_n_elem;
-                
-                size_t packet_ndim = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
-                mwSize* packet_dims = new mwSize[packet_ndim];
-                packet_dims[0] = end-beg+1;
-                for (size_t j = 1; j < packet_ndim; j++)
-                    packet_dims[j] = recon_data->rbit_[i].data_.data_.get_size(j);
-
-                float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
-                float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
-                
-                std::complex<float>* raw_data = recon_data->rbit_[i].data_.data_.get_data_ptr();
-                
-                // It appears that the data is not stores as I would have expected it.
-                // index 1,2,3,... actually follow the RO dimension, even though RO
-                // is the first dimension of the data. In MATLAB this is the other way around.
-                /*
-                size_t start = beg*dim_1_n_elem;
-                for (size_t j = 0; j < packet_n_elem; j++){
-                    real_data[j] = real(raw_data[start + j]);
-                    imag_data[j] = imag(raw_data[start + j]);
-                }
-                GDEBUG("Index: start %lu, end: %lu\n", start, start + packet_n_elem - 1);
-                 */
-
-                size_t counter = 0;
-                for (size_t l = 0; l < dim_1_n_elem*recon_data->rbit_[i].data_.data_.get_size(0); l += recon_data->rbit_[i].data_.data_.get_size(0) ){
-                    for (size_t j = 0; j < end-beg+1; j++){
-                        
-                        real_data[counter] = real(raw_data[beg + l + j]);
-                        imag_data[counter] = imag(raw_data[beg + l + j]);
-                        counter++;
-                    }
-                }
-                    
-                auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
-                mxSetDimensions(mxdata, packet_dims, packet_ndim);
-                mxSetData      (mxdata, real_data);
-                mxSetImagData  (mxdata, imag_data);
+                mxArray* mxdata = GetSplitReconData(&recon_data->rbit_[i].data_, beg, end);
                 
                 // amazingly, sending the data to MATLAB is the slowest operation
                 // of this for loop
@@ -161,8 +89,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // If in the future there are some weird memory issues, this is
                 // a good place to start looking because I don't really know what
                 // I am doing.
-                mxFree(real_data);
-                mxFree(imag_data);
+                // mxFree(real_data);
+                // mxFree(imag_data);
                 
                 /*
                 // do the same for the reference
