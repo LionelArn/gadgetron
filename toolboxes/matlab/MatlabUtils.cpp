@@ -585,16 +585,7 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
     // create the packet. A copy of the data is being done here,
     // which overall increase the RAM usage if packets are needed.
     // There may be a more efficient way to do this.
-    size_t dim_1_n_elem =   buffer->data_.get_size(1)*
-                            buffer->data_.get_size(2)*
-                            buffer->data_.get_size(3)*
-                            buffer->data_.get_size(4)*
-                            buffer->data_.get_size(5)*
-                            buffer->data_.get_size(6);
-    
-    GDEBUG("s1: %lu: s2: %lu\n", dim_1_n_elem, buffer->data_.get_number_of_elements()/buffer->data_.get_size(0));
-    
-    size_t packet_n_elem = (index_end-index_begin+1) * dim_1_n_elem;
+    size_t packet_n_elem = (index_end-index_begin+1) * buffer->data_.get_number_of_elements()/buffer->data_.get_size(0);
 
     size_t packet_ndim = buffer->data_.get_number_of_dimensions();
     mwSize* packet_dims = new mwSize[packet_ndim];
@@ -620,7 +611,7 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
      */
 
     size_t counter = 0;
-    for (size_t l = 0; l < dim_1_n_elem*buffer->data_.get_size(0); l += buffer->data_.get_size(0) ){
+    for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
         for (size_t j = 0; j < index_end-index_begin+1; j++){
 
             real_data[counter] = real(raw_data[index_begin + l + j]);
