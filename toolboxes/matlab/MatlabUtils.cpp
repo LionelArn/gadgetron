@@ -625,6 +625,9 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
     mxSetData      (mxdata, real_data);
     mxSetImagData  (mxdata, imag_data);
     
+    mxFree(real_data);
+    mxFree(imag_data);
+    
     return mxdata;
 }
 
