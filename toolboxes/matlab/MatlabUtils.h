@@ -57,7 +57,7 @@ EXPORTMATLAB mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omi
  * @param
  * @return
  */
-mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size_t index_end);
+EXPORTMATLAB mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size_t index_end);
 
 EXPORTMATLAB IsmrmrdDataBuffered MatlabStructToBuffer(mxArray* mxstruct);
 
