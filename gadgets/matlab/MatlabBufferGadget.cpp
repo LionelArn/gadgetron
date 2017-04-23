@@ -52,11 +52,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     engPutVariable(engine_, "recon_data", reconArray);
     GDEBUG("done\n");
     
-    if(data_bytes < max_data_size)
-    {
-
-    }
-    else
+    if(data_bytes >= max_data_size)
     {
         // the dataset needs to be sent in multiple packets
         // The algorithm here splits the multidimensional arrays (data.data
@@ -81,13 +77,15 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             
             engPutVariable(engine_, "recon_data", reconArray);
         */
+        for (int i = 0; i <  recon_data->rbit_.size(); i++)
+        {   
             
             // send the packets
             //size_t n_RO = sizeof(recon_data->rbit_[i].data_.data_) / sizeof(recon_data->rbit_[i].data_.data_[0]);
             
             float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
-            
             GDEBUG("Starting to process packets for index %i:\n", i+1);
+            
             for(int p = 0; p < n_packets; p++)
             {
 
