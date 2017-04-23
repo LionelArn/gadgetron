@@ -214,9 +214,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         }
     }
     
+    GDEBUG("Sending cmd...\n");
     cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
     send_matlab_command(cmd);
-
+    GDEBUG("done.\n");
 
 	// Get the size of the gadget's queue
 	mxArray *imageQ = engGetVariable(engine_, "imageQ");
