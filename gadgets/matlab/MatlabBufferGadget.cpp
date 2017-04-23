@@ -31,7 +31,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     {
         data_bytes += recon_data->rbit_[i].data_.data_.get_number_of_bytes();
         if (recon_data->rbit_[i].ref_)
-            data_bytes += recon_data->rbit_[i].ref_.get_number_of_bytes();
+            data_bytes += recon_data->rbit_[i].ref_.get_ptr()->data_.get_number_of_bytes();
     }
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
