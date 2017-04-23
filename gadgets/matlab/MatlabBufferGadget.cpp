@@ -155,6 +155,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, cmd.c_str(), mxdata);
                 
+                // This seems to fix the memory leak issue, although I don't really
+                // know how the original code don't have any since it doesn't call
+                // mxFree.
+                // If in the future there are some weird memory issues, this is
+                // a good place to start looking because I don't really know what
+                // I am doing.
                 mxFree(real_data);
                 mxFree(imag_data);
                 

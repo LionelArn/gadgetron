@@ -170,7 +170,7 @@ template<class REAL> struct MatlabConverter<complext<REAL>> {
 		mxSetData(result,real_data);
 		mxSetImagData(result,imag_data);
 
-		auto ndims_test = mxGetNumberOfDimensions(result); // LA: what is this ?
+		auto ndims_test = mxGetNumberOfDimensions(result); // LA: shouldn't this be removed ?
 
 		return result;
 	}
