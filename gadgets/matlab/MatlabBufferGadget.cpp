@@ -36,7 +36,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    bool split_data = data_bytes >= max_data_size;
+    bool split_data = false;//data_bytes >= max_data_size;
     
     // the dataset is small enough to be sent all at once (original code)
     for (int i = 0; i <  recon_data->rbit_.size(); i++)
