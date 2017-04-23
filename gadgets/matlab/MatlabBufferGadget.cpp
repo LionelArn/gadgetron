@@ -157,7 +157,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 mxFree(real_data);
                 mxFree(imag_data);
-                mxDestroyArray(mxdata);
+                //mxDestroyArray(mxdata);
                 
                 /*
                 // do the same for the reference
