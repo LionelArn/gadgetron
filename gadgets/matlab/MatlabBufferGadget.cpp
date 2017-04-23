@@ -30,15 +30,18 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     size_t data_bytes = 0;
     for (int i=0; i < recon_data->rbit_.size(); i++)
     {
+        /*
         size_t bytes = sizeof(recon_data->rbit_[i].data_.data_[0]);   
         for(int j=0; j<recon_data->rbit_[i].data_.data_.get_number_of_dimensions(); ++j)
             bytes *= recon_data->rbit_[i].data_.data_.get_size(j);
         data_bytes += bytes;
+         */
+        data_bytes += recon_data->rbit_[i].data_.data_.get_number_of_bytes();
     }
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(true || data_bytes < max_data_size) 
+    if(data_bytes < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
