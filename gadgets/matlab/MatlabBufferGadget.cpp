@@ -20,44 +20,41 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	const char* fieldnames[2] = {"data","reference"};
 	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames); // what is this mysterious encoding_spaces ?
 
-    // 2e9 bytes data is the published (as of 2017a) hardcoded limit that engPutVariable can transfer.
-    // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be sent.
+    // 2e9 bytes data is the published (as of 2017a) hardcoded limit that MALTAB can load
+    // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be loaded.
+    // Above that, the error message displayed is: Error using load: cannot read file stdio.
     size_t max_data_size = 2e9;
     
-    // compute the data size in bytes (omitting the reference part)
-    // There is probably a cleaner way to do it.
-    // get_number_of_bytes()
+    // compute the data size in bytes
     size_t data_bytes = 0;
     for (int i=0; i < recon_data->rbit_.size(); i++)
     {
-        /*
-        size_t bytes = sizeof(recon_data->rbit_[i].data_.data_[0]);   
-        for(int j=0; j<recon_data->rbit_[i].data_.data_.get_number_of_dimensions(); ++j)
-            bytes *= recon_data->rbit_[i].data_.data_.get_size(j);
-        data_bytes += bytes;
-         */
         data_bytes += recon_data->rbit_[i].data_.data_.get_number_of_bytes();
+        if (recon_data->rbit_[i].ref_)
+            data_bytes += recon_data->rbit_[i].ref_.data_.get_number_of_bytes();
     }
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(data_bytes < max_data_size) 
+    // the dataset is small enough to be sent all at once (original code)
+    for (int i = 0; i <  recon_data->rbit_.size(); i++)
     {
-        // the dataset is small enough to be sent all at once (original code)
-        for (int i = 0; i <  recon_data->rbit_.size(); i++)
+        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, data_bytes < max_data_size);
+        mxSetField(reconArray,i,"data",mxrecon);
+        if (recon_data->rbit_[i].ref_)
         {
-            auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_);
-            mxSetField(reconArray,i,"data",mxrecon);
-            if (recon_data->rbit_[i].ref_)
-            {
-                auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr());
-                mxSetField(reconArray,i,"reference",mxref);
-            }
+            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr(), data_bytes < max_data_size);
+            mxSetField(reconArray,i,"reference",mxref);
         }
-        
-        GDEBUG("Sending the whole buckets...\n");
-        engPutVariable(engine_, "recon_data", reconArray);
-        GDEBUG("done\n");
+    }
+
+    GDEBUG("Sending the whole buckets...\n");
+    engPutVariable(engine_, "recon_data", reconArray);
+    GDEBUG("done\n");
+    
+    if(data_bytes < max_data_size)
+    {
+
     }
     else
     {
@@ -70,6 +67,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
+        /*
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
         {            
             // Create the regular MATLAB structure, but omits the data for the fields "data" and "reference".
@@ -81,6 +79,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 mxSetField(reconArray,i,"reference",mxref);
             }
             
+            engPutVariable(engine_, "recon_data", reconArray);
+        */
             
             // send the packets
             //size_t n_RO = sizeof(recon_data->rbit_[i].data_.data_) / sizeof(recon_data->rbit_[i].data_.data_[0]);
@@ -174,7 +174,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 }*/
             }
         }
-        engPutVariable(engine_, "recon_data", reconArray);
+        
         
         
         //send the command to reconcatenate the data and ref
