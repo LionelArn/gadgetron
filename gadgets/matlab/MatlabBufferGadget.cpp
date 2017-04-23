@@ -141,7 +141,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             // clear the MATLAB data copies
             for(int p = 0; p < n_packets; p++)
             {
-                cmd = "recon_data.ref(" + std::to_string(i+1) + ").data  = " + concat_ref + "];";
+                cmd = "clear data_" + std::to_string(i+1) + "_" + std::to_string(p) + "; ";
                 send_matlab_command(cmd);
                 if (recon_data->rbit_[i].ref_)
                 {

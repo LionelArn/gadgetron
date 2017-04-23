@@ -592,11 +592,11 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
     packet_dims[0] = index_end-index_begin+1;
     for (size_t j = 1; j < packet_ndim; j++)
         packet_dims[j] = buffer->data_.get_size(j);
-    
-    REAL* real_data = (REAL*) mxCalloc(packet_n_elem, sizeof(REAL));
-    REAL* imag_data = (REAL*) mxCalloc(packet_n_elem, sizeof(REAL));
 
-    std::complex<REAL>* raw_data = buffer->data_.get_data_ptr();
+    float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+    float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+
+    std::complex<float>* raw_data = buffer->data_.get_data_ptr();
 
     // It appears that the data is not stored as I would have expected it.
     // index 1,2,3,... actually follow the RO dimension, even though RO
@@ -620,13 +620,10 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
         }
     }
 
-    auto mxdata =  mxCreateNumericMatrix(0, 0, MatlabClassID<REAL>::value, isComplex<complext<REAL>>::value);
+    auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
     mxSetDimensions(mxdata, packet_dims, packet_ndim);
     mxSetData      (mxdata, real_data);
     mxSetImagData  (mxdata, imag_data);
-    
-    mxFree(real_data);
-    mxFree(imag_data);
     
     return mxdata;
 }
