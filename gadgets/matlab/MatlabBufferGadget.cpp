@@ -38,7 +38,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     GDEBUG("Bucket size: %lu bytes\n", data_bytes);
     
-    if(data_bytes < max_data_size) 
+    if(true || data_bytes < max_data_size) 
     {
         // the dataset is small enough to be sent all at once (original code)
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
@@ -116,7 +116,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
                 float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
                 float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
-                
                 
                 std::complex<float>* raw_data = recon_data->rbit_[i].data_.data_.get_data_ptr();
                 
