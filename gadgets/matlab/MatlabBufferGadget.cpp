@@ -64,10 +64,23 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
         {
+            // Allocate memory for faster concatenation
+            // Extra dimensions = 1 are automatically discarded
+            std::string cmd = "recon_data(" + std::to_string(i) + ").data.data = zeros(" +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(0)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(1)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(2)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(3)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(4)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(5)) + ", " +
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(6)) + ");";
+            GDEBUG(cmd);
+            send_matlab_command(cmd + "\n");
+            
+            
             GDEBUG("Starting to process packets for index %i:\n", i+1);
             
             float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
-            
             for(int p = 0; p < n_packets; p++)
             {
                 // (RO) indexes of data to be split
@@ -77,11 +90,16 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 mxArray* mxdata = GetSplitReconData(&recon_data->rbit_[i].data_, beg, end);
                 
-                // amazingly, sending the data to MATLAB is the slowest operation
-                // of this for loop
+                
                 GDEBUG("Sending data packet #%i...\n", p+1);
-                std::string cmd = "data_" + std::to_string(i) + "_" + std::to_string(p);
-                engPutVariable(engine_, cmd.c_str(), mxdata);
+                std::string packet_name = "data_" + std::to_string(i) + "_" + std::to_string(p);
+                engPutVariable(engine_, packet_name, mxdata);
+                
+                std::string concat_cmd = "recon_data(" + std::to_string(i) + ").data.data(" + 
+                                         std::to_string(beg+1) + ":" + std::to_string(end+1) + 
+                                         ",:,:,:,:,:,:) = " + packet_name + ";";
+                GDEBUG(concat_cmd + "\n");
+                send_matlab_command(concat_cmd);
                 
                 // This seems to fix the memory leak issue, although I don't really
                 // know how the original code don't have any since it doesn't call
@@ -115,6 +133,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         
         //send the command to reconcatenate the data and ref
+        /*
         for (int i = 0; i <  recon_data->rbit_.size(); i++)
         {
             GDEBUG("MATLAB concatenation for index %i...\n", i+1);
@@ -138,7 +157,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 send_matlab_command(cmd);
             }
             
-            /*
+            
             // clear the MATLAB data copies
             for(int p = 0; p < n_packets; p++)
             {
@@ -150,10 +169,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     send_matlab_command(cmd);
                 }
             }
-             */
+             
             
             GDEBUG("Concatenation done.\n");
-        }
+        }*/
     }
     
     GDEBUG("Sending cmd...\n");
@@ -228,13 +247,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
 	}
 
-
-
-
-
 	mxDestroyArray(bufferQ);
 	mxDestroyArray(imageQ);
-	//mxDestroyArray(reconArray); //We're not supposed to delete this?
+	mxDestroyArray(reconArray); //We're not supposed to delete this? //LA: apparent memory leak if not done
 
 	// We are finished with the incoming messages m1 and m2
 	m1->release();
