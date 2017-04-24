@@ -77,7 +77,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             if (recon_data->rbit_[i].ref_)
             {
                 size_t n_dims_ref = recon_data->rbit_[i].ref_.get_ptr()->data_.get_number_of_dimensions();
-                std::string allocate_cmd_ref = "recon_data(" + std::to_string(i+1) + ").ref.data = zeros(";
+                std::string allocate_cmd_ref = "recon_data(" + std::to_string(i+1) + ").reference.data = zeros(";
                 for(size_t j = 0; j < n_dims_ref; j++)
                     allocate_cmd_ref += std::to_string(recon_data->rbit_[i].ref_.get_ptr()->data_.get_size(j)) + ((j == n_dims_ref - 1 ) ? ");" : ", ");
                 std::string dbstring_mcmd1_ref = allocate_cmd_ref + "\n"; GDEBUG(dbstring_mcmd1_ref.c_str());
@@ -125,7 +125,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     engPutVariable(engine_, packet_name_ref.c_str(), mxdata_ref);
 
                     // command sent: "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
-                    std::string concat_cmd_ref = "recon_data(" + std::to_string(i+1) + ").ref.data(" + 
+                    std::string concat_cmd_ref = "recon_data(" + std::to_string(i+1) + ").reference.data(" + 
                                              std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                              ",:,:,:,:,:,:) = " + packet_name_ref + "; " +
                                              "clear " + packet_name_ref + ";";
