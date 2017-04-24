@@ -102,6 +102,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
                 send_matlab_command(concat_cmd);
                 
+                mxDestroyArray(mxdata);
+                
                 // This seems to fix the memory leak issue, although I don't really
                 // know how the original code don't have any since it doesn't call
                 // mxFree.
