@@ -64,30 +64,29 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         for (int i = 0; i < recon_data->rbit_.size(); i++)
         {
-            // Allocate memory for faster concatenation
+            // Allocate memory in MATLAB for faster concatenation
             // Extra dimensions = 1 are automatically discarded in MATLAB
-            /*
-            std::string allocate_cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(" +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(0)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(1)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(2)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(3)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(4)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(5)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(6)) + ");";*/
-            // ~ recon_data(i).data.data = zeros(dim1,dim2,...,dimn);
+            // command sent: "recon_data(i).data.data = zeros(dim1,dim2,...,dimn)";
             size_t n_dims = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
             std::string allocate_cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(";
             for(size_t j = 0; j < n_dims; j++)
                 allocate_cmd += std::to_string(recon_data->rbit_[i].data_.data_.get_size(j)) + ((j == n_dims - 1 ) ? ");" : ", ");
-            
-            
             std::string dbstring_mcmd1 = allocate_cmd + "\n"; GDEBUG(dbstring_mcmd1.c_str());
             send_matlab_command(allocate_cmd);
             
-            GDEBUG("Starting to process packets for index %i:\n", i+1);
+            if (recon_data->rbit_[i].ref_)
+            {
+                size_t n_dims_ref = recon_data->rbit_[i].ref_.get_ptr()->data_.get_number_of_dimensions();
+                std::string allocate_cmd_ref = "recon_data(" + std::to_string(i+1) + ").ref.data = zeros(";
+                for(size_t j = 0; j < n_dims_ref; j++)
+                    allocate_cmd += std::to_string(recon_data->rbit_[i].ref_.get_ptr()->data_.get_size(j)) + ((j == n_dims_ref - 1 ) ? ");" : ", ");
+                std::string dbstring_mcmd1_ref = allocate_cmd_ref + "\n"; GDEBUG(dbstring_mcmd1_ref.c_str());
+                send_matlab_command(allocate_cmd_ref);
+            }
             
-            float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
+            GDEBUG("Starting to process packets for data index %i:\n", i+1);
+            
+            float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets); // step MUST be in float, because the decimal information is used
             for(int p = 0; p < n_packets; p++)
             {
                 // (RO) indexes of data to be split
@@ -95,8 +94,8 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 size_t end = roundf(float(p+1)*step - 1.0f);
                 
                 
+                // send the data packet and concatenate it in the correpsonding allocated memory of recon_data.data
                 GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, beg, end);
-                
                 mxArray* mxdata = GetSplitReconData(&recon_data->rbit_[i].data_, beg, end);
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
@@ -114,6 +113,28 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 mxDestroyArray(mxdata);
                 
+                
+                if (recon_data->rbit_[i].ref_)
+                {
+                    // send the ref packet and concatenate it in the correpsonding allocated memory of recon_data.ref
+                    GDEBUG("Creating ref packet #%i: from index %lu to %lu...\n", p+1, beg, end);
+                    mxArray* mxdata_ref = GetSplitReconData(&recon_data->rbit_[i].ref_.get_ptr(), beg, end);
+
+                    GDEBUG("Sending ref packet #%i...\n", p+1);
+                    std::string packet_name_ref = "ref_" + std::to_string(i) + "_" + std::to_string(p);
+                    engPutVariable(engine_, packet_name_ref.c_str(), mxdata_ref);
+
+                    // command sent: "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
+                    std::string concat_cmd_ref = "recon_data(" + std::to_string(i+1) + ").ref.data(" + 
+                                             std::to_string(beg+1) + ":" + std::to_string(end+1) + 
+                                             ",:,:,:,:,:,:) = " + packet_name_ref + "; " +
+                                             "clear " + packet_name_ref + ";";
+
+                    std::string dbstring_mcmd2_ref = concat_cmd_ref + "\n"; GDEBUG(dbstring_mcmd2_ref.c_str());
+                    send_matlab_command(concat_cmd_ref);
+
+                    mxDestroyArray(mxdata_ref);
+                }
                 
                 /*
                 // do the same for the reference
