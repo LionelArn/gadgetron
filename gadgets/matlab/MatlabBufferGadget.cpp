@@ -75,7 +75,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(5)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(6)) + ");";
             
-            std::string dbstring_mcmd1 = cmd + "\n"; GDEBUG(dbstring_mcmd1);
+            std::string dbstring_mcmd1 = cmd + "\n"; GDEBUG(dbstring_mcmd1.c_str());
             send_matlab_command(cmd);
             
             
@@ -99,7 +99,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string concat_cmd = "recon_data(" + std::to_string(i) + ").data.data(" + 
                                          std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                          ",:,:,:,:,:,:) = " + packet_name + ";";
-                std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2);
+                std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
                 send_matlab_command(concat_cmd);
                 
                 // This seems to fix the memory leak issue, although I don't really
