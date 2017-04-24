@@ -78,7 +78,6 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             std::string dbstring_mcmd1 = cmd + "\n"; GDEBUG(dbstring_mcmd1.c_str());
             send_matlab_command(cmd);
             
-            
             GDEBUG("Starting to process packets for index %i:\n", i+1);
             
             float step = float(recon_data->rbit_[i].data_.data_.get_size(0))/float(n_packets);
@@ -87,10 +86,11 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 // (RO) indexes of data to be split
                 size_t beg = roundf(float(p  )*step       );
                 size_t end = roundf(float(p+1)*step - 1.0f);
-                GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, (long unsigned) beg, (long unsigned) end);
+                
+                
+                GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, beg, end);
                 
                 mxArray* mxdata = GetSplitReconData(&recon_data->rbit_[i].data_, beg, end);
-                
                 
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 std::string packet_name = "data_" + std::to_string(i) + "_" + std::to_string(p);
@@ -98,20 +98,13 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 
                 std::string concat_cmd = "recon_data(" + std::to_string(i+1) + ").data.data(" + 
                                          std::to_string(beg+1) + ":" + std::to_string(end+1) + 
-                                         ",:,:,:,:,:,:) = " + packet_name + ";";
+                                         ",:,:,:,:,:,:) = " + packet_name + "; " +
+                                         "clear " + packet_name + ";";
                 std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
                 send_matlab_command(concat_cmd);
                 
                 mxDestroyArray(mxdata);
                 
-                // This seems to fix the memory leak issue, although I don't really
-                // know how the original code don't have any since it doesn't call
-                // mxFree.
-                // If in the future there are some weird memory issues, this is
-                // a good place to start looking because I don't really know what
-                // I am doing.
-                // mxFree(real_data);
-                // mxFree(imag_data);
                 
                 /*
                 // do the same for the reference
