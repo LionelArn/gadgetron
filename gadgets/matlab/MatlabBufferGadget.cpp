@@ -66,7 +66,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         {
             // Allocate memory for faster concatenation
             // Extra dimensions = 1 are automatically discarded
-            std::string cmd = "recon_data(" + std::to_string(i) + ").data.data = zeros(" +
+            std::string cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(" +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(0)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(1)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(2)) + ", " +
@@ -96,7 +96,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string packet_name = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, packet_name.c_str(), mxdata);
                 
-                std::string concat_cmd = "recon_data(" + std::to_string(i) + ").data.data(" + 
+                std::string concat_cmd = "recon_data(" + std::to_string(i+1) + ").data.data(" + 
                                          std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                          ",:,:,:,:,:,:) = " + packet_name + ";";
                 std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
