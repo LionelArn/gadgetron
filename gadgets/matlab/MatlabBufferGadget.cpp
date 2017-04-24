@@ -234,7 +234,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
 	mxDestroyArray(bufferQ);
 	mxDestroyArray(imageQ);
-	mxDestroyArray(reconArray); //We're not supposed to delete this?
+	//mxDestroyArray(reconArray); //We're not supposed to delete this?
 
 	// We are finished with the incoming messages m1 and m2
 	m1->release();
