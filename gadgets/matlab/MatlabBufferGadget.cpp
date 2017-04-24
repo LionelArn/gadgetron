@@ -138,6 +138,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 send_matlab_command(cmd);
             }
             
+            /*
             // clear the MATLAB data copies
             for(int p = 0; p < n_packets; p++)
             {
@@ -149,6 +150,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                     send_matlab_command(cmd);
                 }
             }
+             */
             
             GDEBUG("Concatenation done.\n");
         }
