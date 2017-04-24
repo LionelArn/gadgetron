@@ -118,7 +118,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 {
                     // send the ref packet and concatenate it in the correpsonding allocated memory of recon_data.ref
                     GDEBUG("Creating ref packet #%i: from index %lu to %lu...\n", p+1, beg, end);
-                    mxArray* mxdata_ref = GetSplitReconData(&recon_data->rbit_[i].ref_.get_ptr(), beg, end);
+                    mxArray* mxdata_ref = GetSplitReconData(recon_data->rbit_[i].ref_.get_ptr(), beg, end);
 
                     GDEBUG("Sending ref packet #%i...\n", p+1);
                     std::string packet_name_ref = "ref_" + std::to_string(i) + "_" + std::to_string(p);
