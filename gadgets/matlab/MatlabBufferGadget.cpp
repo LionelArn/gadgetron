@@ -79,7 +79,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 size_t n_dims_ref = recon_data->rbit_[i].ref_.get_ptr()->data_.get_number_of_dimensions();
                 std::string allocate_cmd_ref = "recon_data(" + std::to_string(i+1) + ").ref.data = zeros(";
                 for(size_t j = 0; j < n_dims_ref; j++)
-                    allocate_cmd += std::to_string(recon_data->rbit_[i].ref_.get_ptr()->data_.get_size(j)) + ((j == n_dims_ref - 1 ) ? ");" : ", ");
+                    allocate_cmd_ref += std::to_string(recon_data->rbit_[i].ref_.get_ptr()->data_.get_size(j)) + ((j == n_dims_ref - 1 ) ? ");" : ", ");
                 std::string dbstring_mcmd1_ref = allocate_cmd_ref + "\n"; GDEBUG(dbstring_mcmd1_ref.c_str());
                 send_matlab_command(allocate_cmd_ref);
             }
