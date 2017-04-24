@@ -62,21 +62,27 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
         
         GDEBUG("Bucket size limit reached, parsing it into %i packets.\n", n_packets);
         
-        for (int i = 0; i <  recon_data->rbit_.size(); i++)
+        for (int i = 0; i < recon_data->rbit_.size(); i++)
         {
             // Allocate memory for faster concatenation
-            // Extra dimensions = 1 are automatically discarded
-            std::string cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(" +
+            // Extra dimensions = 1 are automatically discarded in MATLAB
+            /*
+            std::string allocate_cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(" +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(0)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(1)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(2)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(3)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(4)) + ", " +
                     std::to_string(recon_data->rbit_[i].data_.data_.get_size(5)) + ", " +
-                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(6)) + ");";
+                    std::to_string(recon_data->rbit_[i].data_.data_.get_size(6)) + ");";*/
+            size_t n_dims = recon_data->rbit_[i].data_.data_.get_number_of_dimensions();
+            std::string allocate_cmd = "recon_data(" + std::to_string(i+1) + ").data.data = zeros(";
+            for(size_t j = 0; j < n_dims; j++)
+                allocate_cmd += std::to_string(recon_data->rbit_[i].data_.data_.get_size(j)) + (j == n_dims - 1 ) ? ");" : ", ";
             
-            std::string dbstring_mcmd1 = cmd + "\n"; GDEBUG(dbstring_mcmd1.c_str());
-            send_matlab_command(cmd);
+            
+            std::string dbstring_mcmd1 = allocate_cmd + "\n"; GDEBUG(dbstring_mcmd1.c_str());
+            send_matlab_command(allocate_cmd);
             
             GDEBUG("Starting to process packets for index %i:\n", i+1);
             
@@ -96,10 +102,12 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 std::string packet_name = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, packet_name.c_str(), mxdata);
                 
+                // ~ "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
                 std::string concat_cmd = "recon_data(" + std::to_string(i+1) + ").data.data(" + 
                                          std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                          ",:,:,:,:,:,:) = " + packet_name + "; " +
                                          "clear " + packet_name + ";";
+                
                 std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
                 send_matlab_command(concat_cmd);
                 
