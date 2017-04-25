@@ -55,7 +55,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     {
         // the dataset needs to be sent in multiple packets
         // The algorithm here splits the multidimensional arrays (data.data
-        // and reference.data) into n_packets in the RO dimension. After all
+        // and reference.data) into n_packets in the RO (1st) dimension. After all
         // packets are sent, MATLAB reconcatenates everything.
         
         int n_packets = ceil( float(data_bytes) / float(max_data_size) );
@@ -93,112 +93,50 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
                 size_t beg = roundf(float(p  )*step       );
                 size_t end = roundf(float(p+1)*step - 1.0f);
                 
-                
-                // send the data packet and concatenate it in the correpsonding allocated memory of recon_data.data
+                // get the split data
                 GDEBUG("Creating data packet #%i: from index %lu to %lu...\n", p+1, beg, end);
                 mxArray* mxdata = GetSplitReconData(&recon_data->rbit_[i].data_, beg, end);
                 
+                // send it to MATLAB
                 GDEBUG("Sending data packet #%i...\n", p+1);
                 std::string packet_name = "data_" + std::to_string(i) + "_" + std::to_string(p);
                 engPutVariable(engine_, packet_name.c_str(), mxdata);
                 
-                // ~ "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
+                // tell MATLAB to concatenate it to recon_data and clear the packet
+                // command sent: "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
                 std::string concat_cmd = "recon_data(" + std::to_string(i+1) + ").data.data(" + 
                                          std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                          ",:,:,:,:,:,:) = " + packet_name + "; " +
                                          "clear " + packet_name + ";";
-                
                 std::string dbstring_mcmd2 = concat_cmd + "\n"; GDEBUG(dbstring_mcmd2.c_str());
                 send_matlab_command(concat_cmd);
-                
                 mxDestroyArray(mxdata);
                 
                 
                 if (recon_data->rbit_[i].ref_)
                 {
-                    // send the ref packet and concatenate it in the correpsonding allocated memory of recon_data.ref
+                    // get the split reference data
                     GDEBUG("Creating ref packet #%i: from index %lu to %lu...\n", p+1, beg, end);
                     mxArray* mxdata_ref = GetSplitReconData(recon_data->rbit_[i].ref_.get_ptr(), beg, end);
 
+                    // send it to MATLAB
                     GDEBUG("Sending ref packet #%i...\n", p+1);
                     std::string packet_name_ref = "ref_" + std::to_string(i) + "_" + std::to_string(p);
                     engPutVariable(engine_, packet_name_ref.c_str(), mxdata_ref);
 
-                    // command sent: "recon_data(i).data.data(beg:end,:,:,:,:,:,:) = data_i_p; clear data_i_p;
+                    // tell MATLAB to concatenate it to recon_data and clear the packet
+                    // command sent: "recon_data(i).reference.data(beg:end,:,:,:,:,:,:) = ref_i_p; clear ref_i_p;
                     std::string concat_cmd_ref = "recon_data(" + std::to_string(i+1) + ").reference.data(" + 
                                              std::to_string(beg+1) + ":" + std::to_string(end+1) + 
                                              ",:,:,:,:,:,:) = " + packet_name_ref + "; " +
                                              "clear " + packet_name_ref + ";";
-
                     std::string dbstring_mcmd2_ref = concat_cmd_ref + "\n"; GDEBUG(dbstring_mcmd2_ref.c_str());
                     send_matlab_command(concat_cmd_ref);
 
                     mxDestroyArray(mxdata_ref);
                 }
-                
-                /*
-                // do the same for the reference
-                if (recon_data->rbit_[i].ref_)
-                {
-                    GDEBUG("Creating reference packet #%i...\n", p+1);
-                    // create the ref packet
-                    auto packet_ref = malloc( (end-beg)*sizeof(recon_data->rbit_[i].ref_.data_[0]) );
-                    std::copy( &(recon_data->rbit_[i].ref_.data_[beg]),
-                               &(recon_data->rbit_[i].ref_.data_[end]),
-                               &(packet_ref[0]));
-                    auto mxdata_ref = hoNDArrayToMatlab(&packet_ref);
-
-                    // convert the ref packet to MALTAB array and send it
-                    GDEBUG("Sending reference packet #%i...\n", p+1);
-                    engPutVariable(engine_, "ref_" + std::to_string(i) + "_" + std::to_string(p), mxdata_ref);
-                    free(packet_ref);
-                }*/
             }
         }
-        
-        
-        
-        //send the command to reconcatenate the data and ref
-        /*
-        for (int i = 0; i <  recon_data->rbit_.size(); i++)
-        {
-            GDEBUG("MATLAB concatenation for index %i...\n", i+1);
-            
-            // create a concatenation MATLAB command
-            std::string concat_data = "[";
-            std::string concat_ref  = "[";
-            for(int p = 0; p < n_packets; p++)
-            {
-                concat_data += "data_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
-                if (recon_data->rbit_[i].ref_)
-                    concat_ref += "ref_" + std::to_string(i) + "_" + std::to_string(p) + "; ";
-            }
-            
-            // send the concatenation command to MATLAB
-            std::string cmd = "recon_data.data(" + std::to_string(i+1) + ").data  = " + concat_data + "];";
-            send_matlab_command(cmd);
-            if (recon_data->rbit_[i].ref_)
-            {
-                cmd = "recon_data.ref(" + std::to_string(i+1) + ").data  = " + concat_ref + "];";
-                send_matlab_command(cmd);
-            }
-            
-            
-            // clear the MATLAB data copies
-            for(int p = 0; p < n_packets; p++)
-            {
-                cmd = "clear data_" + std::to_string(i+1) + "_" + std::to_string(p) + "; ";
-                send_matlab_command(cmd);
-                if (recon_data->rbit_[i].ref_)
-                {
-                    cmd = "clear ref_" + std::to_string(i+1) + "_" + std::to_string(p) + "; ";
-                    send_matlab_command(cmd);
-                }
-            }
-             
-            
-            GDEBUG("Concatenation done.\n");
-        }*/
     }
     
     GDEBUG("Sending cmd...\n");
