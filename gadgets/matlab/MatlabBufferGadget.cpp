@@ -7,7 +7,7 @@ namespace Gadgetron{
 
 int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 {
-    GDEBUG("Starting MatlabBufferGadget::process");
+    GDEBUG("Starting MatlabBufferGadget::process\n");
     
     std::lock_guard<std::mutex> lock(mutex_);   
 
