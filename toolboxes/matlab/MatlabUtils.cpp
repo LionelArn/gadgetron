@@ -552,16 +552,16 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
 
     if(!omitData) {
-        auto mxdata = hoNDArrayToMatlab(&buffer->data_);
+        //auto mxdata = hoNDArrayToMatlab(&buffer->data_);
         
         std::complex<float>* raw_data = buffer->data_.get_data_ptr();
         
-        // count the number of non-nul RO lines
+        // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
         size_t RO_counter = 0;
-        for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
+        for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) )
             if(real(raw_data[l]) != 0.0f)
                 ++RO_counter;
-        }
+        
         
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
         std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;
@@ -571,6 +571,42 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
                                       buffer->data_.get_size(2) << "," <<
                                       buffer->data_.get_size(3) << "," <<
                                       buffer->data_.get_size(4)  << std::endl;
+        
+        
+        // create the packet. A copy of the data is being done here,
+        // which overall increase the RAM usage if packets are needed.
+        // There may be a more efficient way to do this.
+        size_t packet_n_elem = RO_counter * buffer->data_.get_size(0);
+        size_t packet_ndim = 2;//buffer->data_.get_number_of_dimensions();
+        mwSize* packet_dims = new mwSize[packet_ndim];
+        
+        packet_dims[0] = buffer->data_.get_size(0);
+        
+        packet_dims[1] = RO_counter;
+        for (size_t j = 3; j < buffer->data_.get_number_of_dimensions(); j++)
+            packet_dims[1] *= buffer->data_.get_size(j);
+
+        float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+        float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+
+        size_t counter = 0;
+        for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
+            if(real(raw_data[l]) != 0.0f) {
+                for (size_t j = 0; j < buffer->data_.get_size(0); j++){
+
+                    real_data[counter] = real(raw_data[l + j]);
+                    imag_data[counter] = imag(raw_data[l + j]);
+                    ++counter;
+                }
+            }
+        }
+        
+        std::cout << "counter: " << counter << std::endl;
+
+        auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
+        mxSetDimensions(mxdata, packet_dims, packet_ndim);
+        mxSetData      (mxdata, real_data);
+        mxSetImagData  (mxdata, imag_data);
         
         
         
