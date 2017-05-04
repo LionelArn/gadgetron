@@ -581,17 +581,16 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         mwSize* packet_dims = new mwSize[packet_ndim];
         
         packet_dims[0] = buffer->data_.get_size(0);
-        
         packet_dims[1] = RO_counter;
-        for (size_t j = 3; j < buffer->data_.get_number_of_dimensions(); j++)
-            packet_dims[1] *= buffer->data_.get_size(j);
+        //for (size_t j = 3; j < buffer->data_.get_number_of_dimensions(); j++)
+        //    packet_dims[1] *= buffer->data_.get_size(j);
 
         float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
         float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
 
         size_t counter = 0;
         for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
-            if(real(raw_data[l]) != 0.0f) {
+            if(real(raw_data[l]) != 0.0f) { // need to find a more proper test
                 for (size_t j = 0; j < buffer->data_.get_size(0); j++){
 
                     real_data[counter] = real(raw_data[l + j]);
