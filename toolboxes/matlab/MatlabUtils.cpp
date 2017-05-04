@@ -544,6 +544,49 @@ void MatlabToHoNDImage(const mxArray* m, const mxArray* h, hoNDImage<T, D>& a)
 
 mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
+    const char * field_names[] = {"data","trajectory","headers","samplingdescription"};
+	mwSize one = 1;
+	auto mxstruct = mxCreateStructArray(1,&one,4,field_names);
+
+
+	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
+
+    if(!omitData) {
+        auto mxdata = hoNDArrayToMatlab(&buffer->data_);
+        
+        std::complex<float>* raw_data = buffer->data_.get_data_ptr();
+        size_t RO_counter = 0;
+        for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
+            if(real(raw_data[l]) != 0.0f)
+                ++RO_counter;
+        }
+        
+        std::cout << "RO_counter: " << RO_counter << std::endl;
+        
+        mxSetField(mxstruct,0,"data",mxdata);
+    }
+    
+	//Add trajectory if available
+	if (buffer->trajectory_){
+		auto & trajectory = *buffer->trajectory_;
+		int traj_fieldnumber = mxAddField(mxstruct,"trajectory");
+		auto mxtraj = hoNDArrayToMatlab(&trajectory);
+		mxSetFieldByNumber(mxstruct,0,traj_fieldnumber,mxtraj);
+	}
+
+	//Add headers
+	std::cout << "Adding headers...";
+	mwSize num_headers = buffer->headers_.get_number_of_elements();
+	auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
+	memcpy(mxGetData(mxheaders),buffer->headers_.get_data_ptr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
+	mxSetField(mxstruct,0,"headers",mxheaders);
+
+	auto samplingdescription = samplingdescriptionToMatlabStruct(&buffer->sampling_);
+	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
+    std::cout << " done." << std::endl;
+	return mxstruct;
+    
+    /*
 	const char * field_names[] = {"data","trajectory","headers","samplingdescription"};
 	mwSize one = 1;
 	auto mxstruct = mxCreateStructArray(1,&one,4,field_names);
@@ -575,7 +618,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
     std::cout << " done." << std::endl;
 	return mxstruct;
-
+    */
 
 }
 
@@ -616,7 +659,7 @@ mxArray* GetSplitReconData(IsmrmrdDataBuffered* buffer, size_t index_begin, size
 
             real_data[counter] = real(raw_data[index_begin + l + j]);
             imag_data[counter] = imag(raw_data[index_begin + l + j]);
-            counter++;
+            ++counter;
         }
     }
 

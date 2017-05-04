@@ -20,6 +20,23 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	const char* fieldnames[2] = {"data","reference"};
 	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames); // what is this mysterious encoding_spaces ?
 
+    ///////////////////////////////////
+                 
+    // send the structure to matlab with the data
+    for (int i = 0; i <  recon_data->rbit_.size(); i++)
+    {
+        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_);
+        mxSetField(reconArray,i,"data",mxrecon);
+        if (recon_data->rbit_[i].ref_)
+        {
+            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr());
+            mxSetField(reconArray,i,"reference",mxref);
+        }
+    }
+    engPutVariable(engine_, "recon_data", reconArray);
+    
+    
+    /*
     // 2e9 bytes data is the published (as of 2017a) hardcoded limit that MALTAB can load
     // Empirically, it seems that variables up to 2^32 bytes (~4.3 GB) can be loaded.
     // Above that, the error message displayed is: Error using load: cannot read file stdio.
@@ -38,7 +55,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     bool split_data = data_bytes >= max_data_size;
     
-    // the dataset is small enough to be sent all at once (original code)
+    // send the structure to matlab, with or without the data
     for (int i = 0; i <  recon_data->rbit_.size(); i++)
     {
         auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, split_data);
@@ -138,6 +155,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
             }
         }
     }
+    */
     
     GDEBUG("Sending cmd...\n");
     cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
