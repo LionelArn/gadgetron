@@ -566,6 +566,11 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
         std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;
         std::cout << "RO_counter: " << RO_counter << std::endl;
+        std::cout << "data dims: " << buffer->data_.get_size(0) << "," <<
+                                      buffer->data_.get_size(1) << "," <<
+                                      buffer->data_.get_size(2) << "," <<
+                                      buffer->data_.get_size(3) << "," <<
+                                      buffer->data_.get_size(4)  << std::endl;
         
         
         
