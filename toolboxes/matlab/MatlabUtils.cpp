@@ -555,13 +555,19 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         auto mxdata = hoNDArrayToMatlab(&buffer->data_);
         
         std::complex<float>* raw_data = buffer->data_.get_data_ptr();
+        
+        // count the number of non-nul RO lines
         size_t RO_counter = 0;
         for (size_t l = 0; l < buffer->data_.get_number_of_elements(); l += buffer->data_.get_size(0) ){
             if(real(raw_data[l]) != 0.0f)
                 ++RO_counter;
         }
         
+        std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
+        std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;
         std::cout << "RO_counter: " << RO_counter << std::endl;
+        
+        
         
         mxSetField(mxstruct,0,"data",mxdata);
     }
