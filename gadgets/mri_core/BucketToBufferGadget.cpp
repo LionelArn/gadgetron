@@ -155,7 +155,7 @@ namespace Gadgetron{
 
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
-    std::cout << "end matlabbuffergadget time 1: " << elapsed_secs << std::endl;
+    std::cout << "Buckettobuffergadget time 1: " << elapsed_secs << std::endl;
 
     //Iterate over the imaging data of the bucket
     // this is exactly the same code as for the reference data except for
@@ -173,13 +173,13 @@ namespace Gadgetron{
         //The storage is based on the encoding space
         uint16_t espace = acqhdr.encoding_space_ref;
 
-        //GDEBUG_STREAM("espace: " << acqhdr.encoding_space_ref << std::endl);
-        //GDEBUG_STREAM("slice: " << acqhdr.idx.slice << std::endl);
-        //GDEBUG_STREAM("rep: " << acqhdr.idx.repetition << std::endl);
-        //GDEBUG_STREAM("k1: " << acqhdr.idx.kspace_encode_step_1 << std::endl);
-        //GDEBUG_STREAM("k2: " << acqhdr.idx.kspace_encode_step_2 << std::endl);
-        //GDEBUG_STREAM("seg: " << acqhdr.idx.segment << std::endl);
-        //GDEBUG_STREAM("key: " << key << std::endl);
+        GDEBUG_STREAM("espace: " << acqhdr.encoding_space_ref << std::endl);
+        GDEBUG_STREAM("slice: " << acqhdr.idx.slice << std::endl);
+        GDEBUG_STREAM("rep: " << acqhdr.idx.repetition << std::endl);
+        GDEBUG_STREAM("k1: " << acqhdr.idx.kspace_encode_step_1 << std::endl);
+        GDEBUG_STREAM("k2: " << acqhdr.idx.kspace_encode_step_2 << std::endl);
+        GDEBUG_STREAM("seg: " << acqhdr.idx.segment << std::endl);
+        GDEBUG_STREAM("key: " << key << std::endl);
 
         //Get some references to simplify the notation
         //the reconstruction bit corresponding to this ReconDataBuffer and encoding space
