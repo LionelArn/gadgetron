@@ -576,19 +576,26 @@ namespace Gadgetron{
         
         //Allocate the array for the data
         dataBuffer.data_.create(NE0, NE1, NE2, NCHA, NN, NS, NLOC);
-        clear(&dataBuffer.data_);
         
         clock_t end1 = clock();
         double elapsed_secs1 = double(end1 - begin1) / CLOCKS_PER_SEC;
         clock_t begin2 = clock();
         
+        
+        clear(&dataBuffer.data_);
+        
+        clock_t end2 = clock();
+        double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
+        
+
+        
+        
         //Allocate the array for the headers
         dataBuffer.headers_.create(NE1, NE2, NN, NS, NLOC);
 
         
-        clock_t end2 = clock();
-        double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
-        clock_t begin3 = clock();
+
+        
         
         //Allocate the array for the trajectories
         uint16_t TRAJDIM = acqhdr.trajectory_dimensions;
@@ -598,12 +605,9 @@ namespace Gadgetron{
             clear(dataBuffer.trajectory_.get_ptr());
           }
         
-        
-        clock_t end3 = clock();
-        double elapsed_secs3 = double(end3 - begin3) / CLOCKS_PER_SEC;
 
 
-        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2   << ", " << elapsed_secs3 << std::endl;
+        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2  << std::endl;
         
         //boost::shared_ptr< std::vector<size_t> > dims =  dataBuffer.data_.get_dimensions();
         //GDEBUG_STREAM("NDArray dims: ");
