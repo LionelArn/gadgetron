@@ -556,6 +556,12 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         std::complex<float>* raw_data = buffer->data_.get_data_ptr();
         
+        using namespace std;
+        clock_t begin_1 = clock();
+
+
+
+        
         // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
         size_t RO_counter = 0;
         size_t const nelem  = buffer->data_.get_number_of_elements();
@@ -564,6 +570,8 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             if(real(raw_data[l]) != 0.0f)
                 ++RO_counter;
         
+        clock_t end_1 = clock();
+        double elapsed_secs_1 = double(end_1 - begin_1) / CLOCKS_PER_SEC;
         
         /*
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
@@ -590,6 +598,8 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
         float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
 
+        clock_t end_2 = clock();
+        
         size_t counter = 0;
         for (size_t l = 0; l < nelem; l += nRO ){
             if(real(raw_data[l]) != 0.0f) { // need to find a more proper test, e.g. using idx as look up table for getting directly the acquired RO line
@@ -602,7 +612,12 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             }
         }
         
-        std::cout << "counter: " << counter << std::endl;
+        clock_t end_2 = clock();
+        double elapsed_secs_2 = double(end_2 - begin_2) / CLOCKS_PER_SEC;
+        
+        //std::cout << "counter: " << counter << std::endl;
+        
+        std::cout << "Times: " << elapsed_secs_1 << ", " << elapsed_secs_2 << std::endl;
 
         auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
         mxSetDimensions(mxdata, packet_dims, packet_ndim);
