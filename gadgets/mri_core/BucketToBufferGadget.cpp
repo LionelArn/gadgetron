@@ -153,6 +153,9 @@ namespace Gadgetron{
         stuff(it, dataBuffer, encoding, stats, true);
       }
 
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
+    std::cout << "end matlabbuffergadget time 1: " << elapsed_secs << std::endl;
 
     //Iterate over the imaging data of the bucket
     // this is exactly the same code as for the reference data except for
@@ -203,9 +206,9 @@ namespace Gadgetron{
         stuff(it, dataBuffer, encoding, stats, false);
       }
 
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
-    std::cout << "Buckettobuffergadget time: " << elapsed_secs << std::endl;
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
+    std::cout << "Buckettobuffergadget time 2: " << elapsed_secs << std::endl;
 
     //Send all the ReconData messages
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
