@@ -598,7 +598,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
         float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
 
-        clock_t end_2 = clock();
+        clock_t begin_2 = clock();
         
         size_t counter = 0;
         for (size_t l = 0; l < nelem; l += nRO ){
