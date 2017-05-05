@@ -193,24 +193,21 @@ namespace Gadgetron{
 
 
         
-        clock_t begin = clock();
+        
         //Fill the sampling description for this data buffer, only need to fill sampling_ once per recon bit
         if (&dataBuffer != pCurrDataBuffer)
         {
             fillSamplingDescription(dataBuffer.sampling_, encoding, stats, acqhdr, false);
             pCurrDataBuffer = &dataBuffer;
         }
-        
-        clock_t end = clock();
-        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
 
-        begin = clock();
+        clock_t begin = clock();
         //Make sure that the data storage for this data buffer has been allocated
         //TODO should this check the limits, or should that be done in the stuff function?
         allocateDataArrays(dataBuffer, acqhdr, encoding, stats, false);
 
-        end = clock();
-        elapsed_secs2 += double(end - begin) / CLOCKS_PER_SEC; 
+        clock_t end = clock();
+        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
 
         
         
@@ -222,7 +219,7 @@ namespace Gadgetron{
       }
 
     
-    std::cout << "Buckettobuffergadget times: " << elapsed_secs1 << ", " << elapsed_secs2 << std::endl;
+    std::cout << "BOTTLENECK TIME: " << elapsed_secs1  << std::endl;
 
     //Send all the ReconData messages
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
