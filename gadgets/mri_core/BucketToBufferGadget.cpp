@@ -395,6 +395,7 @@ namespace Gadgetron{
   void BucketToBufferGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
       std::cout << "ALLOCATE BEGIN" << std::endl;
+      clock_t begin_a = clock();
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
         clock_t begin = clock();
@@ -597,7 +598,7 @@ namespace Gadgetron{
         end = clock();
         double elapsed_secs2 = double(end - begin) / CLOCKS_PER_SEC;
 
-        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << "\t" << elapsed_secs2 << std::endl;
+        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2 << std::endl;
         
         //boost::shared_ptr< std::vector<size_t> > dims =  dataBuffer.data_.get_dimensions();
         //GDEBUG_STREAM("NDArray dims: ");
@@ -606,7 +607,9 @@ namespace Gadgetron{
         //}
         //GDEBUG_STREAM(std::endl);
       }
-       std::cout << "ALLOCATE DONE" << std::endl;
+          clock_t end_a = clock();
+        double elapsed_secs_a = double(end_a - begin_a) / CLOCKS_PER_SEC;
+       std::cout << "ALLOCATE DONE: " << elapsed_secs_a << std::endl;
   }
 
   void BucketToBufferGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
