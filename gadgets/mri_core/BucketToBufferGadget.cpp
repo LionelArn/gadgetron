@@ -396,6 +396,9 @@ namespace Gadgetron{
   {
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
+        clock_t begin = clock();
+        
+        
         //Allocate the reference data array
         //7D,  fixed order [E0, E1, E2, CHA, N, S, LOC]
         //11D, fixed order [E0, E1, E2, CHA, SLC, PHS, CON, REP, SET, SEG, AVE]
@@ -569,6 +572,12 @@ namespace Gadgetron{
 
         GDEBUG_CONDITION_STREAM(verbose.value(), "Data dimensions [RO E1 E2 CHA N S SLC] : [" << NE0 << " " << NE1 << " " << NE2 << " " << NCHA << " " << NN << " " << NS << " " << NLOC <<"]");
 
+        
+        
+        clock_t end = clock();
+        double elapsed_secs1 = double(end - begin) / CLOCKS_PER_SEC;
+        begin = clock();
+        
         //Allocate the array for the data
         dataBuffer.data_.create(NE0, NE1, NE2, NCHA, NN, NS, NLOC);
         clear(&dataBuffer.data_);
@@ -583,7 +592,12 @@ namespace Gadgetron{
                 dataBuffer.trajectory_ = hoNDArray<float>(TRAJDIM, NE0,NE1,NE2, NN, NS, NLOC);
             clear(dataBuffer.trajectory_.get_ptr());
           }
+        
+        end = clock();
+        double elapsed_secs2 = double(end - begin) / CLOCKS_PER_SEC;
 
+        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << "\t" << elapsed_secs2 << std::endl;
+        
         //boost::shared_ptr< std::vector<size_t> > dims =  dataBuffer.data_.get_dimensions();
         //GDEBUG_STREAM("NDArray dims: ");
         //for( std::vector<size_t>::const_iterator i = dims->begin(); i != dims->end(); ++i) {
