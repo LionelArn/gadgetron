@@ -167,8 +167,6 @@ namespace Gadgetron{
         //Get a reference to the header for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
 
-        clock_t begin = clock();
-        
         //Generate the key to the corresponding ReconData buffer
         key = getKey(acqhdr.idx);
 
@@ -193,10 +191,9 @@ namespace Gadgetron{
         //this bucket's imaging data stats
         IsmrmrdAcquisitionBucketStats & stats = m1->getObjectPtr()->datastats_[espace];
 
-        clock_t end = clock();
-        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
+
         
-        begin = clock();
+        clock_t begin = clock();
         //Fill the sampling description for this data buffer, only need to fill sampling_ once per recon bit
         if (&dataBuffer != pCurrDataBuffer)
         {
@@ -208,6 +205,11 @@ namespace Gadgetron{
         //TODO should this check the limits, or should that be done in the stuff function?
         allocateDataArrays(dataBuffer, acqhdr, encoding, stats, false);
 
+        clock_t end = clock();
+        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
+        
+        begin = clock();
+        
         // Stuff the data, header and trajectory into this data buffer
         stuff(it, dataBuffer, encoding, stats, false);
         
