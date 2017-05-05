@@ -56,6 +56,7 @@ namespace Gadgetron{
   template<class T, unsigned int D> __inline__ __host__ __device__ 
   void clear( vector_td<T,D> &vec, const T &val = T(0) )
   {
+      std::cout << "gadg clear\n";
     for (unsigned int i=0; i<D; i++) {
       vec[i] = val;
     }

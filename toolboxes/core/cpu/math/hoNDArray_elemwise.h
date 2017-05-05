@@ -393,6 +393,7 @@ void real_to_complex(const hoNDArray<typename realType<T>::Type>& real, hoNDArra
  */
 template<class T> void clear( hoNDArray<T>* x )
 {
+    std::cout << "array clear\n";
     if ( x->get_number_of_elements() > 0 )
     {
         memset( x->get_data_ptr(), 0, x->get_number_of_elements()*sizeof(T));

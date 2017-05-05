@@ -1936,6 +1936,7 @@ inline bool FFDBase<T, CoordType, DIn, DOut>::ffdApproxArray(ArrayType target[DO
 template <typename T, typename CoordType, unsigned int DIn, unsigned int DOut> 
 bool FFDBase<T, CoordType, DIn, DOut>::clear(T v)
 {
+    std::cout << "FFD clear\n";
     try
     {
         unsigned int d;
