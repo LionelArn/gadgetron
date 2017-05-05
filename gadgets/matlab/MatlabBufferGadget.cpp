@@ -204,13 +204,15 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 
 	mxArray* bufferQ = engGetVariable(engine_,"bufferQ");
 
+    clock_t begin = clock();
+    
 	qlen = mxGetNumberOfElements(bufferQ);
 	if (debug_mode_) {
 		GDEBUG("Buffer Queue size: %d \n", qlen);
 		}
     
     
-    clock_t begin = clock();
+    
 
 	for (mwIndex idx = 0; idx <qlen; idx++){
 

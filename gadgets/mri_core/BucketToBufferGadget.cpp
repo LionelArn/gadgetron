@@ -79,6 +79,8 @@ namespace Gadgetron{
   ::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
   {
 
+      clock_t begin = clock();
+      
     size_t key;
     std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > recon_data_buffers;
 
@@ -201,6 +203,9 @@ namespace Gadgetron{
         stuff(it, dataBuffer, encoding, stats, false);
       }
 
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
+    std::cout << "Buckettobuffergadget time: " << elapsed_secs << std::endl;
 
     //Send all the ReconData messages
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
