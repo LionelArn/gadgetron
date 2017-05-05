@@ -394,6 +394,7 @@ namespace Gadgetron{
 
   void BucketToBufferGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
+      std::cout << "ALLOCATE BEGIN" << std::endl;
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
         clock_t begin = clock();
@@ -605,7 +606,7 @@ namespace Gadgetron{
         //}
         //GDEBUG_STREAM(std::endl);
       }
-
+       std::cout << "ALLOCATE DONE" << std::endl;
   }
 
   void BucketToBufferGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
