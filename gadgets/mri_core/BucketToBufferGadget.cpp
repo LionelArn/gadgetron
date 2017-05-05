@@ -395,12 +395,8 @@ namespace Gadgetron{
   void BucketToBufferGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
       std::cout << "ALLOCATE BEGIN" << std::endl;
-      clock_t begin_a = clock();
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
-        clock_t begin = clock();
-        
-        
         //Allocate the reference data array
         //7D,  fixed order [E0, E1, E2, CHA, N, S, LOC]
         //11D, fixed order [E0, E1, E2, CHA, SLC, PHS, CON, REP, SET, SEG, AVE]
@@ -576,17 +572,24 @@ namespace Gadgetron{
 
         
         
-        clock_t end = clock();
-        double elapsed_secs1 = double(end - begin) / CLOCKS_PER_SEC;
-        begin = clock();
+        clock_t begin1 = clock();
         
         //Allocate the array for the data
         dataBuffer.data_.create(NE0, NE1, NE2, NCHA, NN, NS, NLOC);
         clear(&dataBuffer.data_);
-
+        
+        clock_t end1 = clock();
+        double elapsed_secs1 = double(end1 - begin1) / CLOCKS_PER_SEC;
+        clock_t begin2 = clock();
+        
         //Allocate the array for the headers
         dataBuffer.headers_.create(NE1, NE2, NN, NS, NLOC);
 
+        
+        clock_t end2 = clock();
+        double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
+        clock_t begin3 = clock();
+        
         //Allocate the array for the trajectories
         uint16_t TRAJDIM = acqhdr.trajectory_dimensions;
         if (TRAJDIM > 0)
@@ -595,10 +598,12 @@ namespace Gadgetron{
             clear(dataBuffer.trajectory_.get_ptr());
           }
         
-        end = clock();
-        double elapsed_secs2 = double(end - begin) / CLOCKS_PER_SEC;
+        
+        clock_t end3 = clock();
+        double elapsed_secs3 = double(end3 - begin3) / CLOCKS_PER_SEC;
 
-        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2 << std::endl;
+
+        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2   << ", " << elapsed_secs3 << std::endl;
         
         //boost::shared_ptr< std::vector<size_t> > dims =  dataBuffer.data_.get_dimensions();
         //GDEBUG_STREAM("NDArray dims: ");
@@ -607,9 +612,6 @@ namespace Gadgetron{
         //}
         //GDEBUG_STREAM(std::endl);
       }
-          clock_t end_a = clock();
-        double elapsed_secs_a = double(end_a - begin_a) / CLOCKS_PER_SEC;
-       std::cout << "ALLOCATE DONE: " << elapsed_secs_a << std::endl;
   }
 
   void BucketToBufferGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
