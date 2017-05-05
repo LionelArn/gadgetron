@@ -79,7 +79,7 @@ namespace Gadgetron{
   ::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
   {
 
-      clock_t begin = clock();
+      
       
     size_t key;
     std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > recon_data_buffers;
@@ -153,9 +153,9 @@ namespace Gadgetron{
         stuff(it, dataBuffer, encoding, stats, true);
       }
 
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
-    std::cout << "Buckettobuffergadget time 1: " << elapsed_secs << std::endl;
+    
+    double elapsed_secs1 = 0;
+    double elapsed_secs2 = 0;
 
     //Iterate over the imaging data of the bucket
     // this is exactly the same code as for the reference data except for
@@ -167,19 +167,21 @@ namespace Gadgetron{
         //Get a reference to the header for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
 
+        clock_t begin = clock();
+        
         //Generate the key to the corresponding ReconData buffer
         key = getKey(acqhdr.idx);
 
         //The storage is based on the encoding space
         uint16_t espace = acqhdr.encoding_space_ref;
 
-        GDEBUG_STREAM("espace: " << acqhdr.encoding_space_ref << std::endl);
-        GDEBUG_STREAM("slice: " << acqhdr.idx.slice << std::endl);
-        GDEBUG_STREAM("rep: " << acqhdr.idx.repetition << std::endl);
-        GDEBUG_STREAM("k1: " << acqhdr.idx.kspace_encode_step_1 << std::endl);
-        GDEBUG_STREAM("k2: " << acqhdr.idx.kspace_encode_step_2 << std::endl);
-        GDEBUG_STREAM("seg: " << acqhdr.idx.segment << std::endl);
-        GDEBUG_STREAM("key: " << key << std::endl);
+        //GDEBUG_STREAM("espace: " << acqhdr.encoding_space_ref << std::endl);
+        //GDEBUG_STREAM("slice: " << acqhdr.idx.slice << std::endl);
+        //GDEBUG_STREAM("rep: " << acqhdr.idx.repetition << std::endl);
+        //GDEBUG_STREAM("k1: " << acqhdr.idx.kspace_encode_step_1 << std::endl);
+        //GDEBUG_STREAM("k2: " << acqhdr.idx.kspace_encode_step_2 << std::endl);
+        //GDEBUG_STREAM("seg: " << acqhdr.idx.segment << std::endl);
+        //GDEBUG_STREAM("key: " << key << std::endl);
 
         //Get some references to simplify the notation
         //the reconstruction bit corresponding to this ReconDataBuffer and encoding space
@@ -191,6 +193,10 @@ namespace Gadgetron{
         //this bucket's imaging data stats
         IsmrmrdAcquisitionBucketStats & stats = m1->getObjectPtr()->datastats_[espace];
 
+        clock_t end = clock();
+        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
+        
+        begin = clock();
         //Fill the sampling description for this data buffer, only need to fill sampling_ once per recon bit
         if (&dataBuffer != pCurrDataBuffer)
         {
@@ -204,11 +210,14 @@ namespace Gadgetron{
 
         // Stuff the data, header and trajectory into this data buffer
         stuff(it, dataBuffer, encoding, stats, false);
+        
+        
+        end = clock();
+        elapsed_secs2 += double(end - begin) / CLOCKS_PER_SEC; 
       }
 
-    end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
-    std::cout << "Buckettobuffergadget time 2: " << elapsed_secs << std::endl;
+    
+    std::cout << "Buckettobuffergadget times: " << elapsed_secs1 << ", " << elapsed_secs2 << std::endl;
 
     //Send all the ReconData messages
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
