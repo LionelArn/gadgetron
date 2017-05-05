@@ -612,12 +612,6 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             }
         }
         
-        clock_t end_2 = clock();
-        double elapsed_secs_2 = double(end_2 - begin_2) / CLOCKS_PER_SEC;
-        
-        //std::cout << "counter: " << counter << std::endl;
-        
-        std::cout << "Times: " << elapsed_secs_1 << ", " << elapsed_secs_2 << std::endl;
 
         auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
         mxSetDimensions(mxdata, packet_dims, packet_ndim);
@@ -627,6 +621,11 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         
         mxSetField(mxstruct,0,"data",mxdata);
+        
+        
+        clock_t end_2 = clock();
+        double elapsed_secs_2 = double(end_2 - begin_2) / CLOCKS_PER_SEC;  
+        std::cout << "Compression times: " << elapsed_secs_1 << ", " << elapsed_secs_2 << std::endl;
     }
     
 	//Add trajectory if available

@@ -208,6 +208,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	if (debug_mode_) {
 		GDEBUG("Buffer Queue size: %d \n", qlen);
 		}
+    
+    
+    clock_t begin = clock();
 
 	for (mwIndex idx = 0; idx <qlen; idx++){
 
@@ -236,6 +239,10 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	// We are finished with the incoming messages m1 and m2
 	m1->release();
 
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;  
+    std::cout << "end matlabbuffergadget time: " << elapsed_secs << std::endl;
+    
 	return GADGET_OK;
 }
 }
