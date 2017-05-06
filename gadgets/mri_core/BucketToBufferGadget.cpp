@@ -813,7 +813,7 @@ namespace Gadgetron{
 
     std::complex<float>* pData = &dataBuffer.data_(offset, e1, e2, 0, NUsed, SUsed, slice_loc);
 
-    cout << "CALLED HERE JA JA GUT\n";
+    std::cout << "CALLED HERE JA JA GUT\n";
     
     for (uint16_t cha = 0; cha < NCHA; cha++)
     {
