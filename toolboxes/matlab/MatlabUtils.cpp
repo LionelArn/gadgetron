@@ -572,7 +572,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         size_t RO_counter = 0;
         for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); l += nRO)
             if((bool) buffer->headers_[l].read_dir[2])
-                RO_counter += nCH*;
+                RO_counter += nCH;
         std::cout << "RO_counter: " << RO_counter << std::endl;
         
         RO_counter = 0;
@@ -617,7 +617,6 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
         float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
 
-        clock_t begin_2 = clock();
         
         size_t counter = 0;
         for (size_t l = 0; l < nelem; l += nRO ){
@@ -641,10 +640,6 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         mxSetField(mxstruct,0,"data",mxdata);
         
-        
-        clock_t end_2 = clock();
-        double elapsed_secs_2 = double(end_2 - begin_2) / CLOCKS_PER_SEC;  
-        std::cout << "Compression times: " << elapsed_secs_1 << ", " << elapsed_secs_2 << std::endl;
     }
     
 	//Add trajectory if available
