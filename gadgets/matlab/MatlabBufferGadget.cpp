@@ -18,7 +18,7 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
 	mwSize nencoding_spaces = recon_data->rbit_.size();
 
 	const char* fieldnames[2] = {"data","reference"};
-	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames); // what is this mysterious encoding_spaces ?
+	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames);
 
     ///////////////////////////////////
                  

@@ -573,10 +573,11 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         clock_t end_1 = clock();
         double elapsed_secs_1 = double(end_1 - begin_1) / CLOCKS_PER_SEC;
         
+        cout << buffer->headers_.get_number_of_elements();
         
         for(size_t l=0; l<nelem/nRO/buffer->data_.get_size(3); ++l)
         {
-            cout << buffer->data_.head_->getObjectPtr()_>read_dir[l];
+            cout << buffer->headers_->read_dir[l];
             if(! l%nRO)
                 cout << "\n";
         }
