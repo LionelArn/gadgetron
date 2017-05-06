@@ -670,7 +670,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             }
         }
         
-        cout << "done (" << (clock() - b)/CLOCKS_PER_SEC << ")\n";
+        cout << "done (" << (double) (clock() - b)/CLOCKS_PER_SEC << ")\n";
         
         
 
