@@ -559,6 +559,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         using namespace std;
 
         size_t nelem  = buffer->data_.get_number_of_elements();
+        size_t h_nelem  = buffer->headers_.get_number_of_elements();
         
         size_t nRO    = buffer->data_.get_size(0);
         size_t nPE    = buffer->data_.get_size(1);
@@ -570,7 +571,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
         size_t RO_counter = 0;
-        for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l)
+        for (size_t l = 0; l < h_nelem; ++l)
             if((bool) buffer->headers_[l].read_dir[2])
                 RO_counter += nCH;
         std::cout << "RO_counter: " << RO_counter << std::endl;
@@ -633,6 +634,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         }
         */
         
+        /*
         size_t counter = 0;
         for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l) {
             
@@ -648,7 +650,21 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
                 //}
             }
         }
-        
+        */
+        size_t counter = 0;
+        for (size_t ch = 0; ch < nCH; ++ch){
+            for (size_t l = 0; l < h_nelem; ++l) {
+                if((bool) buffer->headers_[l].read_dir[2])
+                {
+                    for (size_t r = 0; r < nRO; ++r){
+
+                            real_data[counter] = real(raw_data[ch*nRO*nPE*n3D + l*nRO + r]);
+                            imag_data[counter] = imag(raw_data[ch*nRO*nPE*n3D + l*nRO + r]);
+                            ++counter;
+                    }
+                }
+            }
+        }
         cout << counter << endl;
         
 
