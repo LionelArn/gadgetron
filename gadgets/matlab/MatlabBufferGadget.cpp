@@ -25,11 +25,11 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     // send the structure to matlab with the data
     for (int i = 0; i <  recon_data->rbit_.size(); i++)
     {
-        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_);
+        auto mxrecon = BufferToMatlabStruct(&recon_data->rbit_[i].data_, false, m1->getObjectPtr()->data_.head_.getObjectPtr());
         mxSetField(reconArray,i,"data",mxrecon);
         if (recon_data->rbit_[i].ref_)
         {
-            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr());
+            auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr(), false, m1->getObjectPtr()->data_.head_.getObjectPtr());
             mxSetField(reconArray,i,"reference",mxref);
         }
     }
