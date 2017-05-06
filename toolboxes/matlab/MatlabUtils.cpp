@@ -577,7 +577,6 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         for (size_t l = 0; l < h_nelem; ++l)
             if((bool) buffer->headers_[l].read_dir[2])
                 RO_counter += nCH;
-        std::cout << "RO_counter: " << RO_counter << std::endl;
         /*
         
         
