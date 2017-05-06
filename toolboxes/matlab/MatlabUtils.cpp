@@ -638,14 +638,14 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             
             if((bool) buffer->headers_[l].read_dir[2])
             {
-                for (size_t ch = 0; ch < nCH; ch++){
-                    for (size_t j = 0; j < nRO; j++){
+                //for (size_t ch = 0; ch < nCH; ch++){
+                    for (size_t j = 0; j < nRO*nCH; j++){
 
-                        real_data[counter] = real(raw_data[l*nRO*ch + j]);
-                        imag_data[counter] = imag(raw_data[l*nRO*ch + j]);
+                        real_data[counter] = real(raw_data[l*nRO*nCH + j]);
+                        imag_data[counter] = imag(raw_data[l*nRO*nCH + j]);
                         ++counter;
                     }
-                }
+                //}
             }
         }
         
