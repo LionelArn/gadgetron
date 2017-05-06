@@ -573,6 +573,13 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         clock_t end_1 = clock();
         double elapsed_secs_1 = double(end_1 - begin_1) / CLOCKS_PER_SEC;
         
+        
+        for(size_t l=0; l<nelem/nRO/buffer->data_.get_size(3); ++l)
+        {
+            cout << buffer->head_->getObjectPtr()_>read_dir[l];
+            if(!mod(l, nRO))
+                cout << "\n";
+        }
         /*
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
         std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;

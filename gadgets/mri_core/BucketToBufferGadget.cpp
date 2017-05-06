@@ -157,11 +157,9 @@ namespace Gadgetron{
     // this is exactly the same code as for the reference data except for
     // the chunk of the data buffer.
     pCurrDataBuffer = NULL;
-    int counter = 0;
     for (std::vector<IsmrmrdAcquisitionData>::iterator it = m1->getObjectPtr()->data_.begin();
         it != m1->getObjectPtr()->data_.end(); ++it)
     {
-        counter++;
         //Get a reference to the header for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
 
@@ -211,7 +209,6 @@ namespace Gadgetron{
         
         
       }
-    std::cout << counter << std::endl;
 
 
     //Send all the ReconData messages
