@@ -554,9 +554,12 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
     if(!omitData) {
         //auto mxdata = hoNDArrayToMatlab(&buffer->data_);
         
+        using namespace std;
+        cout << "Compressing data... ";
+        clock_t b = clock();
+        
         std::complex<float>* raw_data = buffer->data_.get_data_ptr();
         
-        using namespace std;
 
         size_t nelem  = buffer->data_.get_number_of_elements();
         size_t h_nelem  = buffer->headers_.get_number_of_elements();
@@ -652,20 +655,23 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         }
         */
         size_t counter = 0;
+        size_t h_idx = 0;
         for (size_t ch = 0; ch < nCH; ++ch){
             for (size_t l = 0; l < h_nelem; ++l) {
                 if((bool) buffer->headers_[l].read_dir[2])
                 {
                     for (size_t r = 0; r < nRO; ++r){
-
-                            real_data[counter] = real(raw_data[ch*nRO*nPE*n3D + l*nRO + r]);
-                            imag_data[counter] = imag(raw_data[ch*nRO*nPE*n3D + l*nRO + r]);
+                            h_idx = ch*nRO*nPE*n3D + l*nRO + r;
+                            real_data[counter] = real(raw_data[h_idx]);
+                            imag_data[counter] = imag(raw_data[h_idx]);
                             ++counter;
                     }
                 }
             }
         }
-        cout << counter << endl;
+        
+        cout << "done (" << (clock() - b)/CLOCKS_PER_SEC << ")\n";
+        
         
 
         auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
