@@ -577,9 +577,11 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         for(size_t l=0; l<buffer->headers_.get_number_of_elements(); ++l)
         {
-            cout << buffer->headers_[l].read_dir[2];
-            if(! l%nRO)
+            if(l%64==0)
                 cout << "\n";
+            
+            cout << buffer->headers_[l].read_dir[2];
+
         }
         /*
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
