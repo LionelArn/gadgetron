@@ -564,7 +564,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         size_t nPE    = buffer->data_.get_size(1);
         size_t n3D    = buffer->data_.get_size(2);
         size_t nCH    = buffer->data_.get_size(3);
-        size_t N    = buffer->data_.get_size(4);
+        size_t N      = buffer->data_.get_size(4);
         size_t S      = buffer->data_.get_size(5);
         size_t wtf      = buffer->data_.get_size(6);
         
@@ -638,7 +638,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             
             if((bool) buffer->headers_[l].read_dir[2])
             {
-                for (size_t ch = 0; ch < nCH; ch++){
+                for (size_t ch = 0; ch < nCH*N; ch++){
                     for (size_t j = 0; j < nRO; j++){
 
                         real_data[counter] = real(raw_data[l*nRO*ch + j]);
@@ -648,6 +648,8 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
                 }
             }
         }
+        
+        cout << counter << endl;
         
 
         auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
