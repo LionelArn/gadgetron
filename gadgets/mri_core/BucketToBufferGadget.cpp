@@ -153,10 +153,6 @@ namespace Gadgetron{
         stuff(it, dataBuffer, encoding, stats, true);
       }
 
-    
-    double elapsed_secs1 = 0;
-    double elapsed_secs2 = 0;
-
     //Iterate over the imaging data of the bucket
     // this is exactly the same code as for the reference data except for
     // the chunk of the data buffer.
@@ -200,14 +196,10 @@ namespace Gadgetron{
             fillSamplingDescription(dataBuffer.sampling_, encoding, stats, acqhdr, false);
             pCurrDataBuffer = &dataBuffer;
         }
-
-        clock_t begin = clock();
+        
         //Make sure that the data storage for this data buffer has been allocated
         //TODO should this check the limits, or should that be done in the stuff function?
         allocateDataArrays(dataBuffer, acqhdr, encoding, stats, false);
-
-        clock_t end = clock();
-        elapsed_secs1 += double(end - begin) / CLOCKS_PER_SEC; 
 
         
         
@@ -218,8 +210,6 @@ namespace Gadgetron{
         
       }
 
-    
-    std::cout << "BOTTLENECK TIME: " << elapsed_secs1  << std::endl;
 
     //Send all the ReconData messages
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
@@ -394,7 +384,6 @@ namespace Gadgetron{
 
   void BucketToBufferGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
-      std::cout << "ALLOCATE BEGIN" << std::endl;
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
         //Allocate the reference data array
@@ -570,33 +559,13 @@ namespace Gadgetron{
 
         GDEBUG_CONDITION_STREAM(verbose.value(), "Data dimensions [RO E1 E2 CHA N S SLC] : [" << NE0 << " " << NE1 << " " << NE2 << " " << NCHA << " " << NN << " " << NS << " " << NLOC <<"]");
 
-        
-        
-        clock_t begin1 = clock();
-        
         //Allocate the array for the data
         dataBuffer.data_.create(NE0, NE1, NE2, NCHA, NN, NS, NLOC);
-        
-        clock_t end1 = clock();
-        double elapsed_secs1 = double(end1 - begin1) / CLOCKS_PER_SEC;
-        clock_t begin2 = clock();
-        
-        
-        clear(&dataBuffer.data_, 0); // this is the bottleneck, amazingly
-        
-        clock_t end2 = clock();
-        double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
-        
+        clear(&dataBuffer.data_);
 
-        
-        
         //Allocate the array for the headers
         dataBuffer.headers_.create(NE1, NE2, NN, NS, NLOC);
 
-        
-
-        
-        
         //Allocate the array for the trajectories
         uint16_t TRAJDIM = acqhdr.trajectory_dimensions;
         if (TRAJDIM > 0)
@@ -604,11 +573,7 @@ namespace Gadgetron{
                 dataBuffer.trajectory_ = hoNDArray<float>(TRAJDIM, NE0,NE1,NE2, NN, NS, NLOC);
             clear(dataBuffer.trajectory_.get_ptr());
           }
-        
 
-
-        std::cout << "ALLOCATE TIME: " << elapsed_secs1  << ", " << elapsed_secs2  << std::endl;
-        
         //boost::shared_ptr< std::vector<size_t> > dims =  dataBuffer.data_.get_dimensions();
         //GDEBUG_STREAM("NDArray dims: ");
         //for( std::vector<size_t>::const_iterator i = dims->begin(); i != dims->end(); ++i) {
@@ -616,6 +581,7 @@ namespace Gadgetron{
         //}
         //GDEBUG_STREAM(std::endl);
       }
+
   }
 
   void BucketToBufferGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
@@ -847,6 +813,8 @@ namespace Gadgetron{
 
     std::complex<float>* pData = &dataBuffer.data_(offset, e1, e2, 0, NUsed, SUsed, slice_loc);
 
+    cout << "CALLED HERE JA JA GUT\n";
+    
     for (uint16_t cha = 0; cha < NCHA; cha++)
     {
         dataptr = pData + cha*NE0*NE1*NE2;
