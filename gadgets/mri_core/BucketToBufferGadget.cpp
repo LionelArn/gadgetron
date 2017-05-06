@@ -582,7 +582,7 @@ namespace Gadgetron{
         clock_t begin2 = clock();
         
         
-        auto a = clear(&dataBuffer.data_); // this is the bottleneck, amazingly
+        clear(&dataBuffer.data_, 0); // this is the bottleneck, amazingly
         
         clock_t end2 = clock();
         double elapsed_secs2 = double(end2 - begin2) / CLOCKS_PER_SEC;
