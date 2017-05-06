@@ -573,9 +573,9 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l)
             if((bool) buffer->headers_[l].read_dir[2])
                 RO_counter += nCH;
-        
-        /*
         std::cout << "RO_counter: " << RO_counter << std::endl;
+        /*
+        
         
         RO_counter = 0;
         for (size_t l = 0; l < nelem; l += nRO)
@@ -638,7 +638,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             
             if((bool) buffer->headers_[l].read_dir[2])
             {
-                for (size_t ch = 0; ch < nCH*N; ch++){
+                for (size_t ch = 0; ch < nCH; ch++){
                     for (size_t j = 0; j < nRO; j++){
 
                         real_data[counter] = real(raw_data[l*nRO*ch + j]);
