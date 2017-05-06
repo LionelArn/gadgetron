@@ -557,23 +557,32 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         std::complex<float>* raw_data = buffer->data_.get_data_ptr();
         
         using namespace std;
-        clock_t begin_1 = clock();
 
-
-
+        size_t nelem  = buffer->data_.get_number_of_elements();
+        
+        size_t nRO    = buffer->data_.get_size(0);
+        size_t nPE    = buffer->data_.get_size(1);
+        size_t n3D    = buffer->data_.get_size(2);
+        size_t nCH    = buffer->data_.get_size(3);
+        size_t N    = buffer->data_.get_size(4);
+        size_t S      = buffer->data_.get_size(5);
+        size_t wtf      = buffer->data_.get_size(6);
         
         // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
         size_t RO_counter = 0;
-        size_t const nelem  = buffer->data_.get_number_of_elements();
-        size_t const nRO    = buffer->data_.get_size(0);
+        for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); l += nRO)
+            if((bool) buffer->headers_[l].read_dir[2])
+                RO_counter += nCH*;
+        std::cout << "RO_counter: " << RO_counter << std::endl;
+        
+        RO_counter = 0;
         for (size_t l = 0; l < nelem; l += nRO)
             if(real(raw_data[l]) != 0.0f)
                 ++RO_counter;
+        std::cout << "RO_counter: " << RO_counter << std::endl;
         
-        clock_t end_1 = clock();
-        double elapsed_secs_1 = double(end_1 - begin_1) / CLOCKS_PER_SEC;
         
-        cout << buffer->headers_.get_number_of_elements();
+        cout << buffer->headers_.get_number_of_elements() << endl;
         
         for(size_t l=0; l<buffer->headers_.get_number_of_elements(); ++l)
         {
