@@ -573,6 +573,8 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l)
             if((bool) buffer->headers_[l].read_dir[2])
                 RO_counter += nCH;
+        
+        /*
         std::cout << "RO_counter: " << RO_counter << std::endl;
         
         RO_counter = 0;
@@ -582,7 +584,6 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         std::cout << "RO_counter: " << RO_counter << std::endl;
         
         
-        cout << buffer->headers_.get_number_of_elements() << endl;
         
         for(size_t l=0; l<buffer->headers_.get_number_of_elements(); ++l)
         {
@@ -592,6 +593,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
             cout << buffer->headers_[l].read_dir[2];
 
         }
+        */
         /*
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
         std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;
@@ -617,7 +619,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
         float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
 
-        
+        /*
         size_t counter = 0;
         for (size_t l = 0; l < nelem; l += nRO ){
             if(real(raw_data[l]) != 0.0f) { // need to find a more proper test, e.g. using idx as look up table for getting directly the acquired RO line
@@ -626,6 +628,23 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
                     real_data[counter] = real(raw_data[l + j]);
                     imag_data[counter] = imag(raw_data[l + j]);
                     ++counter;
+                }
+            }
+        }
+        */
+        
+        size_t counter = 0;
+        for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l) {
+            
+            if((bool) buffer->headers_[l].read_dir[2])
+            {
+                for (size_t ch = 0; ch < nCH; ch++){
+                    for (size_t j = 0; j < nRO; j++){
+
+                        real_data[counter] = real(raw_data[l*nRO*ch + j]);
+                        imag_data[counter] = imag(raw_data[l*nRO*ch + j]);
+                        ++counter;
+                    }
                 }
             }
         }
