@@ -570,7 +570,7 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
         
         // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
         size_t RO_counter = 0;
-        for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); l += nRO)
+        for (size_t l = 0; l < buffer->headers_.get_number_of_elements(); ++l)
             if((bool) buffer->headers_[l].read_dir[2])
                 RO_counter += nCH;
         std::cout << "RO_counter: " << RO_counter << std::endl;
