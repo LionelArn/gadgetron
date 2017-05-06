@@ -542,7 +542,7 @@ void MatlabToHoNDImage(const mxArray* m, const mxArray* h, hoNDImage<T, D>& a)
 // IsmrmrdDataBuffered
 // ------------------------
 
-mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData, ISMRMRD::AcquisitionHeader* headers){
+mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData){
 
     const char * field_names[] = {"data","trajectory","headers","samplingdescription"};
 	mwSize one = 1;
@@ -575,14 +575,12 @@ mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData, ISMRMR
         
         cout << buffer->headers_.get_number_of_elements();
         
-        
         for(size_t l=0; l<buffer->headers_.get_number_of_elements()*3; ++l)
         {
-            cout << headers->read_dir[l];
+            cout << buffer->headers_[l].read_dir[2];
             if(! l%nRO)
                 cout << "\n";
         }
-         
         /*
         std::cout << "N elem: " << buffer->data_.get_number_of_elements() << std::endl;
         std::cout << "N phase: " << buffer->data_.get_number_of_elements()/buffer->data_.get_size(0) << std::endl;

@@ -50,7 +50,7 @@ template<class T, unsigned int D> EXPORTMATLAB void MatlabToHoNDImage(const mxAr
  * @param buffer
  * @return
  */
-EXPORTMATLAB mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData, ISMRMRD::AcquisitionHeader* hdrs);
+EXPORTMATLAB mxArray* BufferToMatlabStruct(IsmrmrdDataBuffered* buffer, bool omitData = false);
 
 /**
  * LA's data splitting
