@@ -4,7 +4,7 @@
 
 #include "Gadget.h"
 #include "hoNDArray.h"
-#include "gadgetron_mricore_export.h"
+#include "gadgetron_matlab_export.h"
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
