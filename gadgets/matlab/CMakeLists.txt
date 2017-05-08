@@ -19,7 +19,7 @@ if (UNIX)
         MatlabBufferGadget.h
         MatlabBufferGadget.cpp
         MatlabBucketReconGadget.h
-        MatlabBucketReconGadget.cpp )
+        MatlabBucketReconGadget.cpp)
 else()
     add_library(gadgetron_matlab SHARED gadgetron_matlab_export.h MatlabGadget.h MatlabGadget.cpp)
 endif()
