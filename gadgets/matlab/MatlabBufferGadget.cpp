@@ -252,9 +252,9 @@ int MatlabBufferGadget::process(GadgetContainerMessage<IsmrmrdReconData>* m1)
     
     std::cout << "--- Execution times [s] ---"
               << "\nOutside MatlabBufferGadget: "       << double(exec_time_1 - timer_out)/CLOCKS_PER_SEC 
-              << "\nData compressing and transfer: "    << double(exec_time_2_begin - exec_time_2_end)/CLOCKS_PER_SEC 
-              << "\nMATLAB::process and others: "       << double(exec_time_3_begin - exec_time_3_end)/CLOCKS_PER_SEC
-              << "\n";
+              << "\nData compressing and transfer: "    << double(exec_time_2_end - exec_time_2_begin)/CLOCKS_PER_SEC 
+              << "\nMATLAB::process and others: "       << double(exec_time_3_end - exec_time_3_begin)/CLOCKS_PER_SEC
+              << "\n---------------------------\n";
     
     
     timer_out = clock(); //LA
