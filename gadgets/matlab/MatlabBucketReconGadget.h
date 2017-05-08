@@ -1,7 +1,7 @@
-/*
-#ifndef BUCKETTOBUFFER_H
-#define BUCKETTOBUFFER_H
 
+#ifndef MATLABBUCKETRECONGADGET_H
+#define MATLABBUCKETRECONGADGET_H
+/*
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "gadgetron_mricore_export.h"
@@ -79,5 +79,5 @@ namespace Gadgetron{
       virtual void stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
     };
 }
-#endif //BUCKETTOBUFFER_H
 */
+#endif //MATLABBUCKETRECONGADGET_H
