@@ -15,7 +15,7 @@ else()
     set(MATLAB_SUFFIX ".dll")
 endif()
 
-if (UNIX)
+if (UNIX) 
     add_library(gadgetron_matlab SHARED
         gadgetron_matlab_export.h
         MatlabGadget.h MatlabGadget.cpp
