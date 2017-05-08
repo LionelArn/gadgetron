@@ -1,7 +1,7 @@
 
 #ifndef MATLABBUCKETRECONGADGET_H
 #define MATLABBUCKETRECONGADGET_H
-/*
+
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "gadgetron_mricore_export.h"
@@ -12,7 +12,7 @@
 #include <map>
 #include "mri_core_data.h"
 #include "mri_core_acquisition_bucket.h"
-
+/*
 namespace Gadgetron{
 
     // TODO the ignore_segment_ flag is a hack for some EPI sequences
