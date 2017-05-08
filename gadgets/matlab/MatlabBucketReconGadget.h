@@ -12,7 +12,7 @@
 #include <map>
 #include "mri_core_data.h"
 #include "mri_core_acquisition_bucket.h"
-/*
+
 namespace Gadgetron{
 
     // TODO the ignore_segment_ flag is a hack for some EPI sequences
@@ -22,14 +22,14 @@ namespace Gadgetron{
     // For the cartesian sampling, the filled kspace ensures its center (N/2) is aligned with the specified center in the encoding limits
     // For the non-cartesian sampling, this "center alignment" constraint is not applied and kspace lines are filled as their E1 and E2 indexes
 
-  class EXPORTGADGETSMRICORE BucketToBufferGadget : 
+  class EXPORTGADGETSMRICORE MatlabBucketReconGadget : 
   public Gadget1<IsmrmrdAcquisitionBucket>
     {
     public:
-      GADGET_DECLARE(BucketToBufferGadget);
+      GADGET_DECLARE(MatlabBucketReconGadget);
 
-      BucketToBufferGadget();
-      virtual ~BucketToBufferGadget();
+      MatlabBucketReconGadget();
+      virtual ~MatlabBucketReconGadget();
 
       int close(unsigned long flags);
       
@@ -79,5 +79,5 @@ namespace Gadgetron{
       virtual void stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
     };
 }
-*/
+
 #endif //MATLABBUCKETRECONGADGET_H

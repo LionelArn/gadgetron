@@ -6,19 +6,19 @@
 #include "hoNDArray_elemwise.h"
 #include "hoNDArray_reductions.h"
 
-/*
+
 namespace Gadgetron{
 
-    BucketToBufferGadget::BucketToBufferGadget()
+    MatlabBucketReconGadget::MatlabBucketReconGadget()
     {
     }
 
-  BucketToBufferGadget::~BucketToBufferGadget()
+  MatlabBucketReconGadget::~MatlabBucketReconGadget()
   {
     //The buckets array should be empty but just in case, let's make sure all the stuff is released.
   }
 
-  int BucketToBufferGadget
+  int MatlabBucketReconGadget
   ::process_config(ACE_Message_Block* mb)
   {
     if (N_dimension.value().size() == 0) {
@@ -79,7 +79,7 @@ namespace Gadgetron{
     return GADGET_OK;
   }
 
-  int BucketToBufferGadget
+  int MatlabBucketReconGadget
   ::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
   {
 
@@ -88,7 +88,7 @@ namespace Gadgetron{
     size_t key;
     std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > recon_data_buffers;
 
-    //GDEBUG("BucketToBufferGadget::process\n");
+    //GDEBUG("MatlabBucketReconGadget::process\n");
 
     //Some information about the bucket
     //GDEBUG_STREAM("The Reference part: " << m1->getObjectPtr()->refstats_.size() << std::endl);
@@ -237,16 +237,16 @@ namespace Gadgetron{
     return GADGET_OK;
   }
 
-  int BucketToBufferGadget::close(unsigned long flags)
+  int MatlabBucketReconGadget::close(unsigned long flags)
   {
 
     int ret = Gadget::close(flags);
-    GDEBUG("BucketToBufferGadget::close\n");
+    GDEBUG("MatlabBucketReconGadget::close\n");
 
     return ret;
   }
 
-  size_t BucketToBufferGadget::getSlice(ISMRMRD::ISMRMRD_EncodingCounters idx)
+  size_t MatlabBucketReconGadget::getSlice(ISMRMRD::ISMRMRD_EncodingCounters idx)
   {
     size_t index;
 
@@ -259,7 +259,7 @@ namespace Gadgetron{
     return index;
   }
 
-  size_t BucketToBufferGadget::getN(ISMRMRD::ISMRMRD_EncodingCounters idx)
+  size_t MatlabBucketReconGadget::getN(ISMRMRD::ISMRMRD_EncodingCounters idx)
   {
     size_t index;
 
@@ -282,7 +282,7 @@ namespace Gadgetron{
     return index;
   }
 
-  size_t BucketToBufferGadget::getS(ISMRMRD::ISMRMRD_EncodingCounters idx)
+  size_t MatlabBucketReconGadget::getS(ISMRMRD::ISMRMRD_EncodingCounters idx)
   {
     size_t index;
 
@@ -305,7 +305,7 @@ namespace Gadgetron{
     return index;
   }
 
-  size_t BucketToBufferGadget::getKey(ISMRMRD::ISMRMRD_EncodingCounters idx)
+  size_t MatlabBucketReconGadget::getKey(ISMRMRD::ISMRMRD_EncodingCounters idx)
   {
     //[SLC, PHS, CON, REP, SET, SEG, AVE]
     //collapse across two of them (N and S)
@@ -366,7 +366,7 @@ namespace Gadgetron{
     return key;
   }
 
-  IsmrmrdReconBit & BucketToBufferGadget::getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace)
+  IsmrmrdReconBit & MatlabBucketReconGadget::getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace)
   {
     //Look up the corresponding ReconData buffer
     if (recon_data_buffers.find(key) == recon_data_buffers.end())
@@ -386,7 +386,7 @@ namespace Gadgetron{
 
   }
 
-  void BucketToBufferGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
+  void MatlabBucketReconGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
     if (dataBuffer.data_.get_number_of_elements() == 0)
       {
@@ -588,7 +588,7 @@ namespace Gadgetron{
 
   }
 
-  void BucketToBufferGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
+  void MatlabBucketReconGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
   {
     // For cartesian trajectories, assume that any oversampling has been removed.
     if (encoding.trajectory.compare("cartesian") == 0) {
@@ -684,7 +684,7 @@ namespace Gadgetron{
     }
   }
 
-  void BucketToBufferGadget::stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
+  void MatlabBucketReconGadget::stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
 
     // The acquisition header and data
@@ -840,8 +840,7 @@ namespace Gadgetron{
     }
   }
 
-  GADGET_FACTORY_DECLARE(BucketToBufferGadget)
+  GADGET_FACTORY_DECLARE(MatlabBucketReconGadget)
 
 }
 
-*/
