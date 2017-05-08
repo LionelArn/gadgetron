@@ -22,7 +22,7 @@ namespace Gadgetron{
     // For the cartesian sampling, the filled kspace ensures its center (N/2) is aligned with the specified center in the encoding limits
     // For the non-cartesian sampling, this "center alignment" constraint is not applied and kspace lines are filled as their E1 and E2 indexes
 
-  class EXPORTGADGETSMRICORE MatlabBucketReconGadget : 
+  class EXPORTGADGETSMATLAB MatlabBucketReconGadget : 
   public Gadget1<IsmrmrdAcquisitionBucket>
     {
     public:
