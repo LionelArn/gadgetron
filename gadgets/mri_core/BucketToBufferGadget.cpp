@@ -145,11 +145,6 @@ namespace Gadgetron{
             pCurrDataBuffer = &dataBuffer;
         }
         
-        std::cout <<   "NE0: "  << rbit.data_.data_.get_size(0)
-                  << ", NE1: "  << rbit.data_.data_.get_size(1)
-                  << ", NE2: "  << rbit.data_.data_.get_size(2)
-                  << ", NCHA: " << rbit.data_.data_.get_size(3)
-                  << "\n";
 
         //Make sure that the data storage for this data buffer has been allocated
         //TODO should this check the limits, or should that be done in the stuff function?
@@ -193,7 +188,11 @@ namespace Gadgetron{
         //this bucket's imaging data stats
         IsmrmrdAcquisitionBucketStats & stats = m1->getObjectPtr()->datastats_[espace];
 
-
+                std::cout <<   "NE0: "  << rbit.data_.data_.get_size(0)
+                  << ", NE1: "  << rbit.data_.data_.get_size(1)
+                  << ", NE2: "  << rbit.data_.data_.get_size(2)
+                  << ", NCHA: " << rbit.data_.data_.get_size(3)
+                  << "\n";
         
         
         //Fill the sampling description for this data buffer, only need to fill sampling_ once per recon bit
