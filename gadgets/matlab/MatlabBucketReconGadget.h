@@ -1,5 +1,7 @@
-#ifndef MATLABBUCKETRECONGADGET_H
-#define MATLABBUCKETRECONGADGET_H
+//#ifndef MATLABBUCKETRECONGADGET_H
+//#define MATLABBUCKETRECONGADGET_H
+
+#pragma once
 
 #include "Gadget.h"
 #include "hoNDArray.h"
@@ -113,4 +115,4 @@ namespace Gadgetron{
     };
 }
 
-#endif //MATLABBUCKETRECONGADGET_H
+//#endif //MATLABBUCKETRECONGADGET_H
