@@ -90,7 +90,7 @@ namespace Gadgetron{
         IsmrmrdCONDITION S_;
         bool split_slices_;
         bool ignore_segment_;
-        ISMRMRD::IsmrmrdHeader hdr_;
+        ISMRMRD::IsmrmrdHeader hdr_; 
 
         virtual int process_config(ACE_Message_Block* mb);
         virtual int process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1);
