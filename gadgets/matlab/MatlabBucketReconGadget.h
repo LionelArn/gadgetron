@@ -16,9 +16,10 @@
 
 #include <mutex>
 #include "engine.h"     // Matlab Engine header
+#include "gadgetron_paths.h" // get_gadgetron_home
 
 /*
-#include "gadgetron_paths.h"
+
 #include "ismrmrd/ismrmrd.h"
 
 
