@@ -52,7 +52,7 @@ namespace Gadgetron{
         MatlabBucketReconGadget();
         virtual ~MatlabBucketReconGadget();
 
-        int close(unsigned long flags);
+        int close(unsigned long flags); 
 
         protected:
         GADGET_PROPERTY_LIMITS(N_dimension, std::string, "N-Dimensions", "", 
