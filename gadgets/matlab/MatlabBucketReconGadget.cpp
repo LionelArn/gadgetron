@@ -1075,7 +1075,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         sampling.sampling_limits_[2].center_ = encoding.encodingLimits.kspace_encoding_step_2->center;
     }
 
-    if (verbose.value())
+    if (verbose.value()) 
     {
         GDEBUG_STREAM("Encoding space : " << encoding.trajectory
             << " - FOV : [ " << encoding.encodedSpace.fieldOfView_mm.x << " " << encoding.encodedSpace.fieldOfView_mm.y << " " << encoding.encodedSpace.fieldOfView_mm.z << " ] "
