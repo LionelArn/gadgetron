@@ -144,6 +144,12 @@ namespace Gadgetron{
             fillSamplingDescription(dataBuffer.sampling_, encoding, stats, acqhdr, true);
             pCurrDataBuffer = &dataBuffer;
         }
+        
+        std::cout <<   "NE0: "  << rbit.data_.data_.get_size(0)
+                  << ", NE1: "  << rbit.data_.data_.get_size(1)
+                  << ", NE2: "  << rbit.data_.data_.get_size(2)
+                  << ", NCHA: " << rbit.data_.data_.get_size(3)
+                  << "\n";
 
         //Make sure that the data storage for this data buffer has been allocated
         //TODO should this check the limits, or should that be done in the stuff function?
@@ -813,11 +819,6 @@ namespace Gadgetron{
 
     std::complex<float>* pData = &dataBuffer.data_(offset, e1, e2, 0, NUsed, SUsed, slice_loc);
 
-    std::cout <<   "NE0: "  << NE0
-          << ", NE1: "  << NE1
-          << ", NE2: "  << NE2
-          << ", NCHA: " << NCHA
-          << ", nptscopy: " << npts_to_copy << "\n";
     
     for (uint16_t cha = 0; cha < NCHA; cha++)
     {
