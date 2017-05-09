@@ -15,11 +15,12 @@
 
 
 #include <mutex>
+#include "engine.h"     // Matlab Engine header
 
 /*
 #include "gadgetron_paths.h"
 #include "ismrmrd/ismrmrd.h"
-#include "engine.h"     // Matlab Engine header
+
 
 //#include "ace/Synch.h"  // For the MatlabCommandServer
 #include "ace/SOCK_Connector.h"
