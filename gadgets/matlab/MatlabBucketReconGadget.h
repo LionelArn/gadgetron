@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <boost/lexical_cast.hpp>
 
-extern std::mutex mutex_;
+extern std::mutex mutex_MBRG_;
 
 namespace Gadgetron{
 

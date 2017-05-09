@@ -5,7 +5,7 @@
 #include "hoNDArray_reductions.h"
 #include "MatlabUtils.h"
 
-std::mutex mutex_;
+std::mutex mutex_MBRG_;
 
 namespace Gadgetron{
 
@@ -15,7 +15,7 @@ MatlabBucketReconGadget::MatlabBucketReconGadget()
 
 MatlabBucketReconGadget::~MatlabBucketReconGadget()
 {
-    std::lock_guard<std::mutex> lock(mutex_);   
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
     // Close the Matlab engine
     GDEBUG("Closing down Matlab\n");
     engClose(engine_);
@@ -79,7 +79,7 @@ int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
     ISMRMRD::deserialize(mb->rd_ptr(), hdr_);
     
     
-    std::lock_guard<std::mutex> lock(mutex_);   
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
     std::string cmd;
 
     debug_mode_  = debug_mode.value();
@@ -160,6 +160,8 @@ int MatlabBucketReconGadget::send_matlab_command(std::string& command)
   
 int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
 {
+    std::cout << "\nReceived new bucket\n";
+    
     // LA: count the number of RO data existing in this bucket.
     // there's probably a faster way to do it
     long RO_counter = 0;
@@ -168,6 +170,8 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     {
         ++RO_counter;
     }
+    
+    std::cout << "RO_counter: " << RO_counter;
 
     //LA: allocate an array for a copy of the bucket's recon data
     std::complex<float>* raw_data = (std::complex<float>*) malloc(RO_counter*sizeof(std::complex<float>));
@@ -229,6 +233,11 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
             NE2  = (uint16_t)rbit.data_.data_.get_size(2);
             NCHA = (uint16_t)rbit.data_.data_.get_size(3);
             init = true;
+            
+            std::cout <<   "NE0: "  << NE0
+                      << "\nNE1: "  << NE1
+                      << "\nNE2: "  << NE2
+                      << "\nNCHA: " << NCHA << "\n";
         }
 
 
@@ -374,7 +383,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     
     GDEBUG("Starting MatlabBufferGadget::process\n");
     
-    std::lock_guard<std::mutex> lock(mutex_);   
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
 
 	// Initialize a string for matlab commands
 	std::string cmd;
