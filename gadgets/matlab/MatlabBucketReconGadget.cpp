@@ -226,8 +226,8 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         // Stuff the data, header and trajectory into this data buffer
         //stuff(it, dataBuffer, encoding, stats, false);
 
-        if(1)
-        {
+//         if(1)
+//         {
             NE0  = (uint16_t)rbit.data_.data_.get_size(0);
             NE1  = (uint16_t)rbit.data_.data_.get_size(1);
             NE2  = (uint16_t)rbit.data_.data_.get_size(2);
@@ -240,7 +240,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
                       << ", NE2: "  << NE2
                       << ", NCHA: " << NCHA
                       << ", nptscopy: " << npts_to_copy << "\n";
-        }
+//         }
 
 
         //Copy this RO line into raw_data
