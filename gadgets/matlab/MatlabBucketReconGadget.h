@@ -39,43 +39,47 @@ namespace Gadgetron{
     // For the cartesian sampling, the filled kspace ensures its center (N/2) is aligned with the specified center in the encoding limits
     // For the non-cartesian sampling, this "center alignment" constraint is not applied and kspace lines are filled as their E1 and E2 indexes
 
-  class EXPORTGADGETSMATLAB MatlabBucketReconGadget : 
-  public Gadget1<IsmrmrdAcquisitionBucket>
+    class EXPORTGADGETSMATLAB MatlabBucketReconGadget : public Gadget1<IsmrmrdAcquisitionBucket>
     {
-    public:
-      GADGET_DECLARE(MatlabBucketReconGadget);
+        public:
+        GADGET_DECLARE(MatlabBucketReconGadget);
 
-      MatlabBucketReconGadget();
-      virtual ~MatlabBucketReconGadget();
+        MatlabBucketReconGadget();
+        virtual ~MatlabBucketReconGadget();
 
-      int close(unsigned long flags);
-      
-    protected:
-      GADGET_PROPERTY_LIMITS(N_dimension, std::string, "N-Dimensions", "", 
-                 GadgetPropertyLimitsEnumeration,
-                 "average",
-                 "contrast",
-                 "phase",
-                 "repetition",
-                 "set",
-                 "segment",
-                 "slice",
-                 "");
+        int close(unsigned long flags);
 
-      GADGET_PROPERTY_LIMITS(S_dimension, std::string, "S-Dimensions", "", 
-                 GadgetPropertyLimitsEnumeration,
-                 "average",
-                 "contrast",
-                 "phase",
-                 "repetition",
-                 "set",
-                 "segment",
-                 "slice",
-                 "");
+        protected:
+        GADGET_PROPERTY_LIMITS(N_dimension, std::string, "N-Dimensions", "", 
+            GadgetPropertyLimitsEnumeration,
+            "average",
+            "contrast",
+            "phase",
+            "repetition",
+            "set",
+            "segment",
+            "slice",
+            "");
+
+        GADGET_PROPERTY_LIMITS(S_dimension, std::string, "S-Dimensions", "", 
+            GadgetPropertyLimitsEnumeration,
+            "average",
+            "contrast",
+            "phase",
+            "repetition",
+            "set",
+            "segment",
+            "slice",
+            "");
 
         GADGET_PROPERTY(split_slices, bool, "Split slices", false);
         GADGET_PROPERTY(ignore_segment, bool, "Ignore segment", false);
         GADGET_PROPERTY(verbose, bool, "Whether to print more information", false);
+        
+        GADGET_PROPERTY(debug_mode, bool, "Debug mode", false);
+        GADGET_PROPERTY(matlab_path, std::string, "Path to Matlab code", "");
+        GADGET_PROPERTY(matlab_classname, std::string, "Name of Matlab gadget class", "");
+        GADGET_PROPERTY(matlab_startcmd, std::string, "Matlab engine startup command", "matlab -nosplash");
 
         IsmrmrdCONDITION N_;
         IsmrmrdCONDITION S_;
@@ -90,11 +94,13 @@ namespace Gadgetron{
         size_t getN(ISMRMRD::ISMRMRD_EncodingCounters idx);
         size_t getS(ISMRMRD::ISMRMRD_EncodingCounters idx);
 
+        int MatlabBucketReconGadget::send_matlab_command(std::string& command)
+        
         IsmrmrdReconBit & getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace);
         virtual void allocateDataArrays(IsmrmrdDataBuffered &  dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
         virtual void fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader & acqhdr, bool forref);
         virtual void stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
-      
+
         std::string path_;
         std::string classname_;
         std::string startcmd_;

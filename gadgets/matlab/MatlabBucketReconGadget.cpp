@@ -9,40 +9,40 @@ std::mutex mutex_;
 
 namespace Gadgetron{
 
-    MatlabBucketReconGadget::MatlabBucketReconGadget()
-    {
-    }
+MatlabBucketReconGadget::MatlabBucketReconGadget()
+{
+}
 
-    MatlabBucketReconGadget::~MatlabBucketReconGadget()
-    {
-        std::lock_guard<std::mutex> lock(mutex_);   
-        // Close the Matlab engine
-        GDEBUG("Closing down Matlab\n");
-        engClose(engine_);
-    }
+MatlabBucketReconGadget::~MatlabBucketReconGadget()
+{
+    std::lock_guard<std::mutex> lock(mutex_);   
+    // Close the Matlab engine
+    GDEBUG("Closing down Matlab\n");
+    engClose(engine_);
+}
 
-    int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
-    {
-        if (N_dimension.value().size() == 0) {
-            N_ = NONE;
-        } else if (N_dimension.value().compare("average") == 0) {
-            N_ = AVERAGE;
-        } else if (N_dimension.value().compare("contrast") == 0) {
-            N_ = CONTRAST;
-        } else if (N_dimension.value().compare("phase") == 0) {
-            N_ = PHASE;
-        } else if (N_dimension.value().compare("repetition") == 0) {
-            N_ = REPETITION;
-        } else if (N_dimension.value().compare("set") == 0) {
-            N_ = SET;
-        } else if (N_dimension.value().compare("segment") == 0) {
-            N_ = SEGMENT;
-        } else if (N_dimension.value().compare("slice") == 0){
-            N_ = SLICE;
-        } else {
-            GDEBUG("WARNING: Unknown N dimension (%s), N set to NONE", N_dimension.value().c_str());
-            N_ = NONE;
-        }
+int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
+{
+    if (N_dimension.value().size() == 0) {
+        N_ = NONE;
+    } else if (N_dimension.value().compare("average") == 0) {
+        N_ = AVERAGE;
+    } else if (N_dimension.value().compare("contrast") == 0) {
+        N_ = CONTRAST;
+    } else if (N_dimension.value().compare("phase") == 0) {
+        N_ = PHASE;
+    } else if (N_dimension.value().compare("repetition") == 0) {
+        N_ = REPETITION;
+    } else if (N_dimension.value().compare("set") == 0) {
+        N_ = SET;
+    } else if (N_dimension.value().compare("segment") == 0) {
+        N_ = SEGMENT;
+    } else if (N_dimension.value().compare("slice") == 0){
+        N_ = SLICE;
+    } else {
+        GDEBUG("WARNING: Unknown N dimension (%s), N set to NONE", N_dimension.value().c_str());
+        N_ = NONE;
+    }
 
     GDEBUG("N DIMENSION IS: %s (%d)\n", N_dimension.value().c_str(), N_);
 
@@ -79,10 +79,6 @@ namespace Gadgetron{
     ISMRMRD::deserialize(mb->rd_ptr(), hdr_);
     
     
-    
-    
-    
-    
     std::lock_guard<std::mutex> lock(mutex_);   
     std::string cmd;
 
@@ -109,66 +105,61 @@ namespace Gadgetron{
         char matlab_buffer_[2049] = "\0";
         engOutputBuffer(engine_, matlab_buffer_, 2048);
 
-    // Add the necessary paths to the matlab environment
-    // Java matlab command server
-    std::string gadgetron_matlab_path = get_gadgetron_home() + "/share/gadgetron/matlab";
-    std::string add_path_cmd = std::string("addpath('") + gadgetron_matlab_path + std::string("');");
+        // Add the necessary paths to the matlab environment
+        // Java matlab command server
+        std::string gadgetron_matlab_path = get_gadgetron_home() + "/share/gadgetron/matlab";
+        std::string add_path_cmd = std::string("addpath('") + gadgetron_matlab_path + std::string("');");
         // Gadgetron matlab scripts
-    engEvalString(engine_, add_path_cmd.c_str());
+        engEvalString(engine_, add_path_cmd.c_str());
         // ISMRMRD matlab library
         engEvalString(engine_, "addpath(fullfile(getenv('ISMRMRD_HOME'), '/share/ismrmrd/matlab'));");
 
-    GDEBUG("%s", matlab_buffer_);
+        GDEBUG("%s", matlab_buffer_);
     }
 
+    //char matlab_buffer_[2049] = "\0";
+    char matlab_buffer_[20481] = "\0";
+    engOutputBuffer(engine_, matlab_buffer_, 20480);
 
-
-
-
-        //char matlab_buffer_[2049] = "\0";
-        char matlab_buffer_[20481] = "\0";
-        engOutputBuffer(engine_, matlab_buffer_, 20480);
-
-        // add user specified path for this gadget
-        if (!path_.empty()) {
-            cmd = "addpath('" + path_ + "');";
-            send_matlab_command(cmd);
-        }
-
-        // Put the XML Header into the matlab workspace
-        std::string xmlConfig = std::string(mb->rd_ptr());
-        mxArray *xmlstring = mxCreateString(xmlConfig.c_str());
-        engPutVariable(engine_, "xmlstring", xmlstring);
-
-        // Instantiate the Matlab gadget object from the user specified class
-        // Call matlab gadget's init method with the XML Header
-        // and the user defined config method
-        cmd = "matgadget = " + classname_ + "();";
-        cmd += "matgadget.init(xmlstring); matgadget.config();";
-        if (send_matlab_command(cmd) != GADGET_OK) {
-            GDEBUG("Failed to send matlab command.\n");
-            return GADGET_FAIL;
-        }
-
-        mxDestroyArray(xmlstring);
-        return GADGET_OK;
+    // add user specified path for this gadget
+    if (!path_.empty()) {
+        cmd = "addpath('" + path_ + "');";
+        send_matlab_command(cmd);
     }
 
-    int send_matlab_command(std::string& command)
-    {
-        char matlab_buffer_[8193] = "\0";
-        engOutputBuffer(engine_, matlab_buffer_, 8192);
-        engEvalString(engine_, command.c_str());
-	    if (debug_mode_) {
-            GDEBUG("%s\n", matlab_buffer_);
-	    }
-        return GADGET_OK;
+    // Put the XML Header into the matlab workspace
+    std::string xmlConfig = std::string(mb->rd_ptr());
+    mxArray *xmlstring = mxCreateString(xmlConfig.c_str());
+    engPutVariable(engine_, "xmlstring", xmlstring);
+
+    // Instantiate the Matlab gadget object from the user specified class
+    // Call matlab gadget's init method with the XML Header
+    // and the user defined config method
+    cmd = "matgadget = " + classname_ + "();";
+    cmd += "matgadget.init(xmlstring); matgadget.config();";
+    if (send_matlab_command(cmd) != GADGET_OK) {
+        GDEBUG("Failed to send matlab command.\n");
+        return GADGET_FAIL;
     }
+
+    mxDestroyArray(xmlstring);
+    return GADGET_OK;
+}
+
+int MatlabBucketReconGadget::send_matlab_command(std::string& command)
+{
+    char matlab_buffer_[8193] = "\0";
+    engOutputBuffer(engine_, matlab_buffer_, 8192);
+    engEvalString(engine_, command.c_str());
+    if (debug_mode_) {
+        GDEBUG("%s\n", matlab_buffer_);
+    }
+    return GADGET_OK;
+}
   
   
-  int MatlabBucketReconGadget
-  ::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
-  {
+int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
+{
     // LA: count the number of RO data existing in this bucket.
     // there's probably a faster way to do it
     long RO_counter = 0;
@@ -177,27 +168,28 @@ namespace Gadgetron{
     {
         ++RO_counter;
     }
-    
+
     //LA: allocate an array for a copy of the bucket's recon data
-    std::complex<float>* raw_data = std::complex<float>* malloc(RO_counter*sizeof(std::complex<float>));
-    
+    std::complex<float>* raw_data = (std::complex<float>*) malloc(RO_counter*sizeof(std::complex<float>));
+
     bool init = false;
     uint16_t NE0;
     uint16_t NE1;
     uint16_t NE2;
     uint16_t NCHA;
-    
+
     size_t key;
     std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > recon_data_buffers;
-    
+
     // Iterate over the RO lines of the bucket, copy them into raw_data
     RO_counter = 0;
-    pCurrDataBuffer = NULL;
+    IsmrmrdDataBuffered* pCurrDataBuffer = NULL;
     for (std::vector<IsmrmrdAcquisitionData>::iterator it = m1->getObjectPtr()->data_.begin();
         it != m1->getObjectPtr()->data_.end(); ++it)
     {
-        //Get a reference to the header for this acquisition
+        //Get a reference to the header and data for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
+        hoNDArray< std::complex<float> > & acqdata = *it->data_->getObjectPtr();
 
         //Generate the key to the corresponding ReconData buffer
         key = getKey(acqhdr.idx);
@@ -214,22 +206,22 @@ namespace Gadgetron{
         ISMRMRD::Encoding & encoding = hdr_.encoding[espace];
         //this bucket's imaging data stats
         IsmrmrdAcquisitionBucketStats & stats = m1->getObjectPtr()->datastats_[espace];
-        
+
         //Fill the sampling description for this data buffer, only need to fill sampling_ once per recon bit
         if (&dataBuffer != pCurrDataBuffer)
         {
             fillSamplingDescription(dataBuffer.sampling_, encoding, stats, acqhdr, false);
             pCurrDataBuffer = &dataBuffer;
         }
-        
+
         //Make sure that the data storage for this data buffer has been allocated
         //TODO should this check the limits, or should that be done in the stuff function?
         //allocateDataArrays(dataBuffer, acqhdr, encoding, stats, false);
 
-        
+
         // Stuff the data, header and trajectory into this data buffer
         //stuff(it, dataBuffer, encoding, stats, false);
-        
+
         if(!init)
         {
             NE0  = (uint16_t)rbit.data_.data_.get_size(0);
@@ -238,15 +230,15 @@ namespace Gadgetron{
             NCHA = (uint16_t)rbit.data_.data_.get_size(3);
             init = true;
         }
-        
-        
+
+
         //Copy this RO line into raw_data
         // what about echoes ? is it comprised in RO_counter ?
         for (uint16_t cha = 0; cha < NCHA; cha++)
             memcpy(raw_data + RO_counter*cha*NE0*NE1*NE2 + cha*NE0*NE1*NE2, &acqdata(acqhdr.discard_pre, cha), sizeof(std::complex<float>)*NE0);
-        
+
         ++RO_counter;
-      }
+    }
     
     
     
@@ -261,7 +253,7 @@ namespace Gadgetron{
 	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
 
     //size_t nelem  = buffer->data_.get_number_of_elements();
-    size_t h_nelem  = buffer->headers_.get_number_of_elements();
+    //size_t h_nelem  = buffer->headers_.get_number_of_elements();
 
     /*
     size_t nRO    = buffer->data_.get_size(0);
