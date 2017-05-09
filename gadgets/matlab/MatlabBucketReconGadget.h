@@ -1,4 +1,3 @@
-
 #ifndef MATLABBUCKETRECONGADGET_H
 #define MATLABBUCKETRECONGADGET_H
 
@@ -14,8 +13,10 @@
 #include "mri_core_acquisition_bucket.h"
 
 
+
 #include <mutex>
 
+/*
 #include "gadgetron_paths.h"
 #include "ismrmrd/ismrmrd.h"
 #include "engine.h"     // Matlab Engine header
@@ -27,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <boost/lexical_cast.hpp>
-
+*/
 extern std::mutex mutex_MBRG_;
 
 namespace Gadgetron{

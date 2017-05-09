@@ -23,6 +23,8 @@ MatlabBucketReconGadget::~MatlabBucketReconGadget()
 
 int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
 {
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);  
+    
     std::cout << "STARTING MATLABUCKETRECONGADGET CONFIG\n";
     
     if (N_dimension.value().size() == 0) {
@@ -81,7 +83,7 @@ int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
     ISMRMRD::deserialize(mb->rd_ptr(), hdr_);
     
     
-    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
+     
     std::string cmd;
 
     debug_mode_  = debug_mode.value();
