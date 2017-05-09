@@ -23,6 +23,8 @@ MatlabBucketReconGadget::~MatlabBucketReconGadget()
 
 int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
 {
+    std::cout << "STARTING MATLABUCKETRECONGADGET CONFIG\n";
+    
     if (N_dimension.value().size() == 0) {
         N_ = NONE;
     } else if (N_dimension.value().compare("average") == 0) {
