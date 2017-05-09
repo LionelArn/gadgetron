@@ -13,6 +13,23 @@
 #include "mri_core_data.h"
 #include "mri_core_acquisition_bucket.h"
 
+
+#include <mutex>
+
+#include "gadgetron_paths.h"
+#include "ismrmrd/ismrmrd.h"
+#include "engine.h"     // Matlab Engine header
+
+//#include "ace/Synch.h"  // For the MatlabCommandServer
+#include "ace/SOCK_Connector.h"
+#include "ace/INET_Addr.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <boost/lexical_cast.hpp>
+
+extern std::mutex mutex_;
+
 namespace Gadgetron{
 
     // TODO the ignore_segment_ flag is a hack for some EPI sequences
@@ -56,27 +73,34 @@ namespace Gadgetron{
                  "slice",
                  "");
 
-      GADGET_PROPERTY(split_slices, bool, "Split slices", false);
-      GADGET_PROPERTY(ignore_segment, bool, "Ignore segment", false);
-      GADGET_PROPERTY(verbose, bool, "Whether to print more information", false);
+        GADGET_PROPERTY(split_slices, bool, "Split slices", false);
+        GADGET_PROPERTY(ignore_segment, bool, "Ignore segment", false);
+        GADGET_PROPERTY(verbose, bool, "Whether to print more information", false);
 
-      IsmrmrdCONDITION N_;
-      IsmrmrdCONDITION S_;
-      bool split_slices_;
-      bool ignore_segment_;
-      ISMRMRD::IsmrmrdHeader hdr_;
+        IsmrmrdCONDITION N_;
+        IsmrmrdCONDITION S_;
+        bool split_slices_;
+        bool ignore_segment_;
+        ISMRMRD::IsmrmrdHeader hdr_;
+
+        virtual int process_config(ACE_Message_Block* mb);
+        virtual int process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1);
+        size_t getKey(ISMRMRD::ISMRMRD_EncodingCounters idx);
+        size_t getSlice(ISMRMRD::ISMRMRD_EncodingCounters idx);
+        size_t getN(ISMRMRD::ISMRMRD_EncodingCounters idx);
+        size_t getS(ISMRMRD::ISMRMRD_EncodingCounters idx);
+
+        IsmrmrdReconBit & getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace);
+        virtual void allocateDataArrays(IsmrmrdDataBuffered &  dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
+        virtual void fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader & acqhdr, bool forref);
+        virtual void stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
       
-      virtual int process_config(ACE_Message_Block* mb);
-      virtual int process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1);
-      size_t getKey(ISMRMRD::ISMRMRD_EncodingCounters idx);
-      size_t getSlice(ISMRMRD::ISMRMRD_EncodingCounters idx);
-      size_t getN(ISMRMRD::ISMRMRD_EncodingCounters idx);
-      size_t getS(ISMRMRD::ISMRMRD_EncodingCounters idx);
+        std::string path_;
+        std::string classname_;
+        std::string startcmd_;
+        bool debug_mode_;
 
-      IsmrmrdReconBit & getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace);
-      virtual void allocateDataArrays(IsmrmrdDataBuffered &  dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
-      virtual void fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader & acqhdr, bool forref);
-      virtual void stuff(std::vector<IsmrmrdAcquisitionData>::iterator it, IsmrmrdDataBuffered & dataBuffer, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
+        Engine *engine_;
     };
 }
 
