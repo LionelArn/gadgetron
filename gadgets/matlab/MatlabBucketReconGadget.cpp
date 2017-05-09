@@ -1088,7 +1088,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 
   
 
-  GADGET_FACTORY_DECLARE(MatlabBucketReconGadget)
+  //GADGET_FACTORY_DECLARE(MatlabBucketReconGadget)
 
 }
 

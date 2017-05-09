@@ -115,4 +115,6 @@ namespace Gadgetron{
     };
 }
 
+GADGET_FACTORY_DECLARE(MatlabBucketReconGadget);
+
 //#endif //MATLABBUCKETRECONGADGET_H
