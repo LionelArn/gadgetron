@@ -94,7 +94,7 @@ namespace Gadgetron{
         size_t getN(ISMRMRD::ISMRMRD_EncodingCounters idx);
         size_t getS(ISMRMRD::ISMRMRD_EncodingCounters idx);
 
-        int MatlabBucketReconGadget::send_matlab_command(std::string& command)
+        int send_matlab_command(std::string& command);
         
         IsmrmrdReconBit & getRBit(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* > & recon_data_buffers, size_t key, uint16_t espace);
         virtual void allocateDataArrays(IsmrmrdDataBuffered &  dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref);
