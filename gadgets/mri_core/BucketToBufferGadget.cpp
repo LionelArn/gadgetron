@@ -813,6 +813,11 @@ namespace Gadgetron{
 
     std::complex<float>* pData = &dataBuffer.data_(offset, e1, e2, 0, NUsed, SUsed, slice_loc);
 
+    std::cout <<   "NE0: "  << NE0
+          << ", NE1: "  << NE1
+          << ", NE2: "  << NE2
+          << ", NCHA: " << NCHA
+          << ", nptscopy: " << npts_to_copy << "\n";
     
     for (uint16_t cha = 0; cha < NCHA; cha++)
     {

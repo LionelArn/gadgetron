@@ -1,13 +1,11 @@
-
-#include "../mri_core/GadgetIsmrmrdReadWrite.h" //LA: added ../mri_core/, is that the correct way ?
 #include "MatlabBucketReconGadget.h"
-
+#include "../mri_core/GadgetIsmrmrdReadWrite.h" //LA: added ../mri_core/, is that the correct way ?
 #include "mri_core_data.h"
 #include "hoNDArray_elemwise.h"
 #include "hoNDArray_reductions.h"
-// #include "MatlabUtils.h"
+#include "MatlabUtils.h"
 
-// std::mutex mutex_MBRG_;
+std::mutex mutex_MBRG_;
 
 namespace Gadgetron{
 
@@ -17,18 +15,14 @@ MatlabBucketReconGadget::MatlabBucketReconGadget()
 
 MatlabBucketReconGadget::~MatlabBucketReconGadget()
 {
-//     std::lock_guard<std::mutex> lock(mutex_MBRG_);   
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
     // Close the Matlab engine
     GDEBUG("Closing down Matlab\n");
-//     engClose(engine_);
+    engClose(engine_);
 }
 
 int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
 {
-//     std::lock_guard<std::mutex> lock(mutex_MBRG_);  
-    
-    std::cout << "STARTING MATLABUCKETRECONGADGET CONFIG\n";
-    
     if (N_dimension.value().size() == 0) {
         N_ = NONE;
     } else if (N_dimension.value().compare("average") == 0) {
@@ -85,83 +79,83 @@ int MatlabBucketReconGadget::process_config(ACE_Message_Block* mb)
     ISMRMRD::deserialize(mb->rd_ptr(), hdr_);
     
     
-     
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
     std::string cmd;
 
-//     debug_mode_  = debug_mode.value();
-//     path_        = matlab_path.value();
-//     classname_   = matlab_classname.value();
-//     startcmd_    = matlab_startcmd.value();
+    debug_mode_  = debug_mode.value();
+    path_        = matlab_path.value();
+    classname_   = matlab_classname.value();
+    startcmd_    = matlab_startcmd.value();
 
-//     if (classname_.empty()) {
-//         GERROR("Missing Matlab Gadget classname in config!");
-//         return GADGET_FAIL;
-//     }
+    if (classname_.empty()) {
+        GERROR("Missing Matlab Gadget classname in config!");
+        return GADGET_FAIL;
+    }
 
-//     GDEBUG("MATLAB Class Name : %s\n", classname_.c_str());
+    GDEBUG("MATLAB Class Name : %s\n", classname_.c_str());
 
 
-//     // Open the Matlab Engine on the current host
-//     GDEBUG("Starting MATLAB engine with command: %s\n", startcmd_.c_str());
-//     if (!(engine_ = engOpen(startcmd_.c_str()))) {
-//         // TODO: error checking!
-//         GDEBUG("Can't start MATLAB engine\n");
-//     } else {
-//         // Prepare a buffer for collecting Matlab's output
-//         char matlab_buffer_[2049] = "\0";
-//         engOutputBuffer(engine_, matlab_buffer_, 2048);
-// 
-//         // Add the necessary paths to the matlab environment
-//         // Java matlab command server
-//         std::string gadgetron_matlab_path = get_gadgetron_home() + "/share/gadgetron/matlab";
-//         std::string add_path_cmd = std::string("addpath('") + gadgetron_matlab_path + std::string("');");
-//         // Gadgetron matlab scripts
-//         engEvalString(engine_, add_path_cmd.c_str());
-//         // ISMRMRD matlab library
-//         engEvalString(engine_, "addpath(fullfile(getenv('ISMRMRD_HOME'), '/share/ismrmrd/matlab'));");
-// 
-//         GDEBUG("%s", matlab_buffer_);
-//     }
-// 
-//     //char matlab_buffer_[2049] = "\0";
-//     char matlab_buffer_[20481] = "\0";
-//     engOutputBuffer(engine_, matlab_buffer_, 20480);
-// 
-//     // add user specified path for this gadget
-//     if (!path_.empty()) {
-//         cmd = "addpath('" + path_ + "');";
-//         send_matlab_command(cmd);
-//     }
-// 
-//     // Put the XML Header into the matlab workspace
-//     std::string xmlConfig = std::string(mb->rd_ptr());
-//     mxArray *xmlstring = mxCreateString(xmlConfig.c_str());
-//     engPutVariable(engine_, "xmlstring", xmlstring);
-// 
-//     // Instantiate the Matlab gadget object from the user specified class
-//     // Call matlab gadget's init method with the XML Header
-//     // and the user defined config method
-//     cmd = "matgadget = " + classname_ + "();";
-//     cmd += "matgadget.init(xmlstring); matgadget.config();";
-//     if (send_matlab_command(cmd) != GADGET_OK) {
-//         GDEBUG("Failed to send matlab command.\n");
-//         return GADGET_FAIL;
-//     }
-// 
-//     mxDestroyArray(xmlstring);
+    // Open the Matlab Engine on the current host
+    GDEBUG("Starting MATLAB engine with command: %s\n", startcmd_.c_str());
+    if (!(engine_ = engOpen(startcmd_.c_str()))) {
+        // TODO: error checking!
+        GDEBUG("Can't start MATLAB engine\n");
+    } else {
+        // Prepare a buffer for collecting Matlab's output
+        char matlab_buffer_[2049] = "\0";
+        engOutputBuffer(engine_, matlab_buffer_, 2048);
+
+        // Add the necessary paths to the matlab environment
+        // Java matlab command server
+        std::string gadgetron_matlab_path = get_gadgetron_home() + "/share/gadgetron/matlab";
+        std::string add_path_cmd = std::string("addpath('") + gadgetron_matlab_path + std::string("');");
+        // Gadgetron matlab scripts
+        engEvalString(engine_, add_path_cmd.c_str());
+        // ISMRMRD matlab library
+        engEvalString(engine_, "addpath(fullfile(getenv('ISMRMRD_HOME'), '/share/ismrmrd/matlab'));");
+
+        GDEBUG("%s", matlab_buffer_);
+    }
+
+    //char matlab_buffer_[2049] = "\0";
+    char matlab_buffer_[20481] = "\0";
+    engOutputBuffer(engine_, matlab_buffer_, 20480);
+
+    // add user specified path for this gadget
+    if (!path_.empty()) {
+        cmd = "addpath('" + path_ + "');";
+        send_matlab_command(cmd);
+    }
+
+    // Put the XML Header into the matlab workspace
+    std::string xmlConfig = std::string(mb->rd_ptr());
+    mxArray *xmlstring = mxCreateString(xmlConfig.c_str());
+    engPutVariable(engine_, "xmlstring", xmlstring);
+
+    // Instantiate the Matlab gadget object from the user specified class
+    // Call matlab gadget's init method with the XML Header
+    // and the user defined config method
+    cmd = "matgadget = " + classname_ + "();";
+    cmd += "matgadget.init(xmlstring); matgadget.config();";
+    if (send_matlab_command(cmd) != GADGET_OK) {
+        GDEBUG("Failed to send matlab command.\n");
+        return GADGET_FAIL;
+    }
+
+    mxDestroyArray(xmlstring);
     return GADGET_OK;
 }
 
-// int MatlabBucketReconGadget::send_matlab_command(std::string& command)
-// {
-// //     char matlab_buffer_[8193] = "\0";
-// //     engOutputBuffer(engine_, matlab_buffer_, 8192);
-// //     engEvalString(engine_, command.c_str());
-// //     if (debug_mode_) {
-// //         GDEBUG("%s\n", matlab_buffer_);
-// //     }
-//     return GADGET_OK;
-// }
+int MatlabBucketReconGadget::send_matlab_command(std::string& command)
+{
+    char matlab_buffer_[8193] = "\0";
+    engOutputBuffer(engine_, matlab_buffer_, 8192);
+    engEvalString(engine_, command.c_str());
+    if (debug_mode_) {
+        GDEBUG("%s\n", matlab_buffer_);
+    }
+    return GADGET_OK;
+}
   
   
 int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBucket>* m1)
@@ -177,10 +171,10 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         ++RO_counter;
     }
     
-    std::cout << "RO_counter: " << RO_counter;
+    std::cout << "RO_counter: " << RO_counter << "\n";
 
     //LA: allocate an array for a copy of the bucket's recon data
-    std::complex<float>* raw_data = (std::complex<float>*) malloc(RO_counter*sizeof(std::complex<float>));
+    std::complex<float>* raw_data = (std::complex<float>*) malloc(RO_counter*sizeof(std::complex<float>)*128); //!!!!!!!!!!!
 
     bool init = false;
     uint16_t NE0;
@@ -232,25 +226,27 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         // Stuff the data, header and trajectory into this data buffer
         //stuff(it, dataBuffer, encoding, stats, false);
 
-        if(!init)
+        if(1)
         {
             NE0  = (uint16_t)rbit.data_.data_.get_size(0);
             NE1  = (uint16_t)rbit.data_.data_.get_size(1);
             NE2  = (uint16_t)rbit.data_.data_.get_size(2);
             NCHA = (uint16_t)rbit.data_.data_.get_size(3);
+            uint16_t npts_to_copy = acqhdr.number_of_samples - acqhdr.discard_pre - acqhdr.discard_post;
             init = true;
             
             std::cout <<   "NE0: "  << NE0
-                      << "\nNE1: "  << NE1
-                      << "\nNE2: "  << NE2
-                      << "\nNCHA: " << NCHA << "\n";
+                      << ", NE1: "  << NE1
+                      << ", NE2: "  << NE2
+                      << ", NCHA: " << NCHA
+                      << ", nptscopy: " << npts_to_copy << "\n";
         }
 
 
         //Copy this RO line into raw_data
         // what about echoes ? is it comprised in RO_counter ?
         for (uint16_t cha = 0; cha < NCHA; cha++)
-            memcpy(raw_data + RO_counter*cha*NE0*NE1*NE2 + cha*NE0*NE1*NE2, &acqdata(acqhdr.discard_pre, cha), sizeof(std::complex<float>)*NE0);
+            memcpy(raw_data + RO_counter*cha*NE0*NE1*NE2 + cha*NE0*NE1*NE2, &acqdata(acqhdr.discard_pre, cha), sizeof(std::complex<float>)*npts_to_copy);
 
         ++RO_counter;
     }
@@ -259,105 +255,109 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     
     
     
-//     ///////////////////////// BUFFER TO MXSTRUCT //////////////////////////
-//     const char * field_names[] = {"data","trajectory","headers","samplingdescription"};
-// 	mwSize one = 1;
-// 	auto mxstruct = mxCreateStructArray(1,&one,4,field_names);
-// 
-// 
-// 	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
-// 
-//     //size_t nelem  = buffer->data_.get_number_of_elements();
-//     //size_t h_nelem  = buffer->headers_.get_number_of_elements();
-// 
-//     /*
-//     size_t nRO    = buffer->data_.get_size(0);
-//     size_t nPE    = buffer->data_.get_size(1);
-//     size_t n3D    = buffer->data_.get_size(2);
-//     size_t nCH    = buffer->data_.get_size(3);
-//     size_t N      = buffer->data_.get_size(4);
-//     size_t S      = buffer->data_.get_size(5);
-//     size_t wtf      = buffer->data_.get_size(6);
-//     */
-//      
-//     // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
-//     /*
-//     size_t RO_counter = 0;
-//     for (size_t l = 0; l < h_nelem; ++l)
-//         if((bool) buffer->headers_[l].read_dir[2])
-//             RO_counter += nCH;
-//      */
-// 
-//     // create the packet. A copy of the data is being done here
-//     size_t packet_n_elem = RO_counter * NE0;
-//     size_t packet_ndim = 2;//buffer->data_.get_number_of_dimensions();
-//     mwSize* packet_dims = new mwSize[packet_ndim];
-// 
-//     packet_dims[0] = NE0;
-//     packet_dims[1] = RO_counter;
-// 
-//     float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
-//     float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
-// 
-//     /*
-//     size_t counter = 0;
-//     size_t h_idx = 0;
-//     for (size_t ch = 0; ch < NCHA; ++ch){
-//         for (size_t l = 0; l < h_nelem; ++l) {
-//             if((bool) buffer->headers_[l].read_dir[2])
-//             {
-//                 for (size_t r = 0; r < nRO; ++r){
-//                         h_idx = ch*nRO*nPE*n3D + l*nRO + r;
-//                         real_data[counter] = real(raw_data[h_idx]);
-//                         imag_data[counter] = imag(raw_data[h_idx]);
-//                         ++counter;
-//                 }
-//             }
-//         }
-//     }
-//     */
-//     for(size_t i = 0; i<NE0*RO_counter; ++i)
-//     {
-//         real_data[i] = real(raw_data[i]);
-//         imag_data[i] = imag(raw_data[i]);
-//     }
-// 
-//     auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
-//     mxSetDimensions(mxdata, packet_dims, packet_ndim);
-//     mxSetData      (mxdata, real_data);
-//     mxSetImagData  (mxdata, imag_data);
-// 
-//     mxSetField(mxstruct,0,"data",mxdata);
-//         
-//     
-//     // need to fix that later
-//     /*
-// 	//Add trajectory if available
-// 	if (buffer->trajectory_){
-// 		auto & trajectory = *buffer->trajectory_;
-// 		int traj_fieldnumber = mxAddField(mxstruct,"trajectory");
-// 		auto mxtraj = hoNDArrayToMatlab(&trajectory);
-// 		mxSetFieldByNumber(mxstruct,0,traj_fieldnumber,mxtraj);
-// 	}
-// 
-// 	//Add headers
-// 	std::cout << "Adding headers...";
-// 	mwSize num_headers = buffer->headers_.get_number_of_elements();
-// 	auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
-// 	memcpy(mxGetData(mxheaders),buffer->headers_.get_data_ptr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
-// 	mxSetField(mxstruct,0,"headers",mxheaders);
-// 
-// 	auto samplingdescription = samplingdescriptionToMatlabStruct(&buffer->sampling_);
-// 	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
-//     std::cout << " done." << std::endl;
-// 	return mxstruct;
-//     */
-//     
-//     ////////////////////////////BUFFER TO MXSTRUCT END ////////////////////////////////
+    ///////////////////////// BUFFER TO MXSTRUCT //////////////////////////
+    const char * field_names[] = {"data","trajectory","headers","samplingdescription"};
+	mwSize one = 1;
+	auto mxstruct = mxCreateStructArray(1,&one,4,field_names);
+
+
+	if (!mxstruct) throw std::runtime_error("Failed to allocate Matlab struct");
+
+    //size_t nelem  = buffer->data_.get_number_of_elements();
+    //size_t h_nelem  = buffer->headers_.get_number_of_elements();
+
+    /*
+    size_t nRO    = buffer->data_.get_size(0);
+    size_t nPE    = buffer->data_.get_size(1);
+    size_t n3D    = buffer->data_.get_size(2);
+    size_t nCH    = buffer->data_.get_size(3);
+    size_t N      = buffer->data_.get_size(4);
+    size_t S      = buffer->data_.get_size(5);
+    size_t wtf      = buffer->data_.get_size(6);
+    */
+     
+    // count the number of non-nul RO lines in this buffer (there's probably a more elegant built-in method)
+    /*
+    size_t RO_counter = 0;
+    for (size_t l = 0; l < h_nelem; ++l)
+        if((bool) buffer->headers_[l].read_dir[2])
+            RO_counter += nCH;
+     */
+
+    // create the packet. A copy of the data is being done here
+    size_t packet_n_elem = RO_counter * NE0;
+    size_t packet_ndim = 2;//buffer->data_.get_number_of_dimensions();
+    mwSize* packet_dims = new mwSize[packet_ndim];
+
+    packet_dims[0] = NE0;
+    packet_dims[1] = RO_counter;
+
+    float* real_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+    float* imag_data = (float*) mxCalloc(packet_n_elem, sizeof(float));
+
+    /*
+    size_t counter = 0;
+    size_t h_idx = 0;
+    for (size_t ch = 0; ch < NCHA; ++ch){
+        for (size_t l = 0; l < h_nelem; ++l) {
+            if((bool) buffer->headers_[l].read_dir[2])
+            {
+                for (size_t r = 0; r < nRO; ++r){
+                        h_idx = ch*nRO*nPE*n3D + l*nRO + r;
+                        real_data[counter] = real(raw_data[h_idx]);
+                        imag_data[counter] = imag(raw_data[h_idx]);
+                        ++counter;
+                }
+            }
+        }
+    }
+    */
+    for(size_t i = 0; i<NE0*RO_counter; ++i)
+    {
+        real_data[i] = real(raw_data[i]);
+        imag_data[i] = imag(raw_data[i]);
+    }
+    
+    delete[] raw_data;
+
+    auto mxdata =  mxCreateNumericMatrix(0, 0, mxSINGLE_CLASS, mxCOMPLEX);
+    mxSetDimensions(mxdata, packet_dims, packet_ndim);
+    mxSetData      (mxdata, real_data);
+    mxSetImagData  (mxdata, imag_data);
+
+    mxSetField(mxstruct,0,"data",mxdata);
+        
+    
+    // need to fix that later
+    /*
+	//Add trajectory if available
+	if (buffer->trajectory_){
+		auto & trajectory = *buffer->trajectory_;
+		int traj_fieldnumber = mxAddField(mxstruct,"trajectory");
+		auto mxtraj = hoNDArrayToMatlab(&trajectory);
+		mxSetFieldByNumber(mxstruct,0,traj_fieldnumber,mxtraj);
+	}
+
+	//Add headers
+	std::cout << "Adding headers...";
+	mwSize num_headers = buffer->headers_.get_number_of_elements();
+	auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
+	memcpy(mxGetData(mxheaders),buffer->headers_.get_data_ptr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
+	mxSetField(mxstruct,0,"headers",mxheaders);
+
+	auto samplingdescription = samplingdescriptionToMatlabStruct(&buffer->sampling_);
+	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
+    std::cout << " done." << std::endl;
+	return mxstruct;
+    */
+    
+    ////////////////////////////BUFFER TO MXSTRUCT END ////////////////////////////////
     
     
     
     //Send all the ReconData messages
+    // LA: no idea what this does
+    /*
     GDEBUG("End of bucket reached, sending out %d ReconData buffers\n", recon_data_buffers.size());
     for(std::map<size_t, GadgetContainerMessage<IsmrmrdReconData>* >::iterator it = recon_data_buffers.begin(); it != recon_data_buffers.end(); it++)
     {
@@ -372,9 +372,10 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 
     //Clear the recondata buffer map
     recon_data_buffers.clear();  // is this necessary?
+     */
 
     //We can release the incoming bucket now. This will release all of the data it contains.
-    m1->release();
+//     m1->release(); // done later
     
     
     
@@ -389,106 +390,106 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     
     GDEBUG("Starting MatlabBufferGadget::process\n");
     
-//     std::lock_guard<std::mutex> lock(mutex_MBRG_);   
-// 
-// 	// Initialize a string for matlab commands
-// 	std::string cmd;
-// 
-// 	auto recon_data = m1->getObjectPtr();
-// 	mwSize nencoding_spaces = 1;//recon_data->rbit_.size();
-// 	const char* fieldnames[2] = {"data","reference"};
-// 	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames);
-// 
-//     ///////////////////////////////////
-// 
-//     mxSetField(reconArray,1,"data",mxstruct);
-//     /*
-//     if (recon_data->rbit_[i].ref_)
-//     {
-//         auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr());
-//         mxSetField(reconArray,i,"reference",mxref);
-//     }
-//     */
-//     engPutVariable(engine_, "recon_data", reconArray);
-//     
-//     GDEBUG("Sending cmd...\n");
-//     cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
-//     send_matlab_command(cmd);
-//     GDEBUG("done.\n");
-// 
-//     ///////////////////////// FINITION //////////////////////////
-// 	// Get the size of the gadget's queue
-// 	mxArray *imageQ = engGetVariable(engine_, "imageQ");
-// 	if (imageQ == NULL) {
-// 		GERROR("Failed to get the imageQ from matgadget\n");
-// 		return GADGET_FAIL;
-// 	}
-// 
-// 	size_t qlen = mxGetNumberOfElements(imageQ);
-// 	if (debug_mode_) {
-// 	GDEBUG("Image Queue size: %d \n", qlen);
-// 	}
-// 	const mwSize* dims = mxGetDimensions(imageQ);
-// 	mwSize ndims = mxGetNumberOfDimensions(imageQ);
-// 
-// 	GDEBUG("Number of ndims %i \n",ndims);
-// 
-// 	//Read all Image bytes
-// 	for (mwIndex idx = 0; idx < qlen; idx++) {
-// 		mxArray *res_hdr  = mxGetField(imageQ, idx, "bytes");
-// 		mxArray *res_data = mxGetField(imageQ, idx, "image");
-// 
-// 		GadgetContainerMessage<ISMRMRD::ImageHeader>* m3 =
-// 				new GadgetContainerMessage<ISMRMRD::ImageHeader>();
-// 		ISMRMRD::ImageHeader *hdr_new = m3->getObjectPtr();
-// 		memcpy(hdr_new, mxGetData(res_hdr), sizeof(ISMRMRD::ImageHeader));
-// 
-// 		auto image= MatlabToHoNDArray<std::complex<float>>(res_data);
-// 		auto m4 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >(image);
-// 		auto dims = *image.get_dimensions();
-// 
-// 		m3->cont(m4);
-// 		if (this->next()->putq(m3) < 0) {
-// 			GDEBUG("Failed to put Image message on queue\n");
-// 			return GADGET_FAIL;
-// 		}
-// 
-// 	}
-// 	//Match engGetVariable with mxDestroy___s
-// 	mxArray* bufferQ = engGetVariable(engine_,"bufferQ");
-// 
-// 	qlen = mxGetNumberOfElements(bufferQ);
-// 	if (debug_mode_) {
-// 		GDEBUG("Buffer Queue size: %d \n", qlen);
-// 		}
-//     
-// 	for (mwIndex idx = 0; idx <qlen; idx++){
-// 
-// 		IsmrmrdReconData output_data;
-// 		IsmrmrdReconBit bit;
-// 		bit.data_ = MatlabStructToBuffer(mxGetField(bufferQ,idx,"data"));
-// 
-// 		auto ref = mxGetField(bufferQ,idx,"reference");
-// 		if (ref){
-// 			GDEBUG("Adding reference");
-// 			bit.ref_ = MatlabStructToBuffer(ref);
-// 		}
-// 		output_data.rbit_.push_back(bit);
-// 		auto m3 = new GadgetContainerMessage<IsmrmrdReconData>(output_data);
-// 		if (this->next()->putq(m3) < 0){
-// 			GDEBUG("Failed to put Buffer message on queue\n");
-// 			return GADGET_FAIL;
-// 		}
-// 
-// 	}
-// 
-// 	mxDestroyArray(bufferQ);
-// 	mxDestroyArray(imageQ);
-// 	mxDestroyArray(reconArray);
+    std::lock_guard<std::mutex> lock(mutex_MBRG_);   
 
-	m1->release();
-    ////////////////////////////////////////////////////////////////////
+	// Initialize a string for matlab commands
+	std::string cmd;
+
+	auto recon_data = m1->getObjectPtr();
+	mwSize nencoding_spaces = 1;//recon_data->rbit_.size();
+	const char* fieldnames[2] = {"data","reference"};
+	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,2,fieldnames);
+
+    ///////////////////////////////////
+
+    mxSetField(reconArray,1,"data",mxstruct);
+    /*
+    if (recon_data->rbit_[i].ref_)
+    {
+        auto mxref = BufferToMatlabStruct(recon_data->rbit_[i].ref_.get_ptr());
+        mxSetField(reconArray,i,"reference",mxref);
+    }
+    */
+    engPutVariable(engine_, "recon_data", reconArray);
     
+    GDEBUG("Sending cmd...\n");
+    cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
+    send_matlab_command(cmd);
+    GDEBUG("done.\n");
+
+    ///////////////////////// FINITION //////////////////////////
+	// Get the size of the gadget's queue
+	mxArray *imageQ = engGetVariable(engine_, "imageQ");
+	if (imageQ == NULL) {
+		GERROR("Failed to get the imageQ from matgadget\n");
+		return GADGET_FAIL;
+	}
+
+	size_t qlen = mxGetNumberOfElements(imageQ);
+	if (debug_mode_) {
+	GDEBUG("Image Queue size: %d \n", qlen);
+	}
+	const mwSize* dims = mxGetDimensions(imageQ);
+	mwSize ndims = mxGetNumberOfDimensions(imageQ);
+
+	GDEBUG("Number of ndims %i \n",ndims);
+
+	//Read all Image bytes
+	for (mwIndex idx = 0; idx < qlen; idx++) {
+		mxArray *res_hdr  = mxGetField(imageQ, idx, "bytes");
+		mxArray *res_data = mxGetField(imageQ, idx, "image");
+
+		GadgetContainerMessage<ISMRMRD::ImageHeader>* m3 =
+				new GadgetContainerMessage<ISMRMRD::ImageHeader>();
+		ISMRMRD::ImageHeader *hdr_new = m3->getObjectPtr();
+		memcpy(hdr_new, mxGetData(res_hdr), sizeof(ISMRMRD::ImageHeader));
+
+		auto image= MatlabToHoNDArray<std::complex<float>>(res_data);
+		auto m4 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >(image);
+		auto dims = *image.get_dimensions();
+
+		m3->cont(m4);
+		if (this->next()->putq(m3) < 0) {
+			GDEBUG("Failed to put Image message on queue\n");
+			return GADGET_FAIL;
+		}
+
+	}
+	//Match engGetVariable with mxDestroy___s
+	mxArray* bufferQ = engGetVariable(engine_,"bufferQ");
+    
+	qlen = mxGetNumberOfElements(bufferQ);
+	if (debug_mode_) {
+		GDEBUG("Buffer Queue size: %d \n", qlen);
+		}
+    
+	for (mwIndex idx = 0; idx <qlen; idx++){
+
+		IsmrmrdReconData output_data;
+		IsmrmrdReconBit bit;
+		bit.data_ = MatlabStructToBuffer(mxGetField(bufferQ,idx,"data"));
+
+		auto ref = mxGetField(bufferQ,idx,"reference");
+		if (ref){
+			GDEBUG("Adding reference");
+			bit.ref_ = MatlabStructToBuffer(ref);
+		}
+		output_data.rbit_.push_back(bit);
+		auto m3 = new GadgetContainerMessage<IsmrmrdReconData>(output_data);
+		if (this->next()->putq(m3) < 0){
+			GDEBUG("Failed to put Buffer message on queue\n");
+			return GADGET_FAIL;
+		}
+
+	}
+
+	mxDestroyArray(bufferQ);
+	mxDestroyArray(imageQ);
+	mxDestroyArray(reconArray);
+
+    std::cout << "segfaults here ";
+	m1->release();
+    std::cout << "and there\n";
     return GADGET_OK;
   }
   
@@ -788,7 +789,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 
   }
 
-  /*
+  
   void MatlabBucketReconGadget::allocateDataArrays(IsmrmrdDataBuffered & dataBuffer, ISMRMRD::AcquisitionHeader & acqhdr, ISMRMRD::Encoding encoding, IsmrmrdAcquisitionBucketStats & stats, bool forref)
   {
     if (dataBuffer.data_.get_number_of_elements() == 0)
@@ -990,7 +991,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
       }
 
   }
-  */
+  
 
   void MatlabBucketReconGadget::fillSamplingDescription(SamplingDescription & sampling, ISMRMRD::Encoding & encoding, IsmrmrdAcquisitionBucketStats & stats, ISMRMRD::AcquisitionHeader& acqhdr, bool forref)
   {
@@ -1075,7 +1076,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         sampling.sampling_limits_[2].center_ = encoding.encodingLimits.kspace_encoding_step_2->center;
     }
 
-    if (verbose.value()) 
+    if (verbose.value())
     {
         GDEBUG_STREAM("Encoding space : " << encoding.trajectory
             << " - FOV : [ " << encoding.encodedSpace.fieldOfView_mm.x << " " << encoding.encodedSpace.fieldOfView_mm.y << " " << encoding.encodedSpace.fieldOfView_mm.z << " ] "
@@ -1090,7 +1091,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 
   
 
-  //GADGET_FACTORY_DECLARE(MatlabBucketReconGadget)
+  GADGET_FACTORY_DECLARE(MatlabBucketReconGadget)
 
 }
 
