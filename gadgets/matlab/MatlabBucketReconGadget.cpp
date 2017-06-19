@@ -13,6 +13,7 @@ std::mutex mutex_MBRG_;
 namespace Gadgetron{
 
 MatlabBucketReconGadget::MatlabBucketReconGadget()
+: first_packet_(true)
 {
 }
 
@@ -166,7 +167,7 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     
     
 //     std::clock_t time1 = std::clock();
-    high_resolution_clock::time_point time1 = high_resolution_clock::now();
+//     high_resolution_clock::time_point time1 = high_resolution_clock::now();
     
     IsmrmrdAcquisitionBucket* bucket = m1->getObjectPtr();
     
@@ -199,7 +200,6 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     isLastPacket[0] = 0;
     
     // Iterate over the RO lines of the bucket, copy them into raw_data
-//     IsmrmrdDataBuffered* pCurrDataBuffer = NULL;
     Gadgetron::GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* headersToMatlab = NULL;
     
     for (std::vector<IsmrmrdAcquisitionData>::iterator it = bucket->data_.begin(); it != bucket->data_.end(); ++it)
@@ -240,6 +240,12 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         if( ((flags & ( 1 << 24 )) >> 24) )  
         {
             isLastPacket[0] = 1;
+            
+        }
+        
+        // Send headers if this is the first packet
+        if(first_packet_)
+        {
             headersToMatlab = it->head_;
         }
         
@@ -304,6 +310,10 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         if( ((flags & ( 1 << 24 )) >> 24) )  
         {
             isLastPacket[0] = 1;
+        }
+        
+        if(first_packet_)
+        {
             headersToMatlab = it->head_;
         }
         
@@ -321,13 +331,12 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
         ++RO_counter;
     }
     
-    high_resolution_clock::time_point time2 = high_resolution_clock::now();
+//     high_resolution_clock::time_point time2 = high_resolution_clock::now();
     
     std::lock_guard<std::mutex> lock(mutex_MBRG_); 
     
     
     ///////////////////////// RAWDATA TO MXSTRUCT //////////////////////////
-//     const char * field_names[] = {"data","trajectory","headers","samplingdescription", "kspace_encode_step"};
     const char * field_names[] = {"data", "headers", "kspace_encode_step"};
 	mwSize one = 1;
 	auto mxstruct = mxCreateStructArray(1,&one,3,field_names); // always check the number of fields, otherwise segfault
@@ -364,42 +373,21 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
     mxSetData(mxstep, phase_coordinates);
     mxSetField(mxstruct,0,"kspace_encode_step",mxstep);
     
-    /*
-	//Add trajectory if available
-	if (pCurrDataBuffer->trajectory_){
-		auto & trajectory = *pCurrDataBuffer->trajectory_;
-		int traj_fieldnumber = mxAddField(mxstruct,"trajectory");
-		auto mxtraj = hoNDArrayToMatlab(&trajectory);
-		mxSetFieldByNumber(mxstruct,0,traj_fieldnumber,mxtraj);
-	}
-    
-    
-	//Add headers
-	std::cout << "Adding headers...";
-	mwSize num_headers = pCurrDataBuffer->headers_.get_number_of_elements();
-	auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
-	memcpy(mxGetData(mxheaders),pCurrDataBuffer->headers_.get_data_ptr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
-	mxSetField(mxstruct,0,"headers",mxheaders);
-    
-    
-	auto samplingdescription = samplingdescriptionToMatlabStruct(&pCurrDataBuffer->sampling_);
-	mxSetField(mxstruct,0,"samplingdescription",samplingdescription);
-    */
-//     for(int i=0;i<pCurrDataBuffer->headers_.get_number_of_elements(); ++i)
-//         std::cout << (*(pCurrDataBuffer->headers_.get_data_ptr())).patient_table_position[2] << std::endl;
-//     
-//     std::cout << "nelem: "<< headersToMatlab->getObjectPtr()->get_number_of_elements() << std::endl;
-    
-    if(isLastPacket[0]) {
+    // create headers field for matlab if this is the first packet
+    if(first_packet_)
+    {
+        first_packet_ = false;
         mwSize num_headers = headersToMatlab->size();
         auto mxheaders = mxCreateNumericMatrix(sizeof(ISMRMRD::AcquisitionHeader),num_headers,mxUINT8_CLASS,mxREAL);
+        // if you're looking for the line at which a segmentation fault happens, this is a good place to start
+        // I've had several problem here. It use to crash at this point when this was created at the last packet
+        // The problem was "fixed" when I changed this to be called at the first packet
         memcpy(mxGetData(mxheaders),headersToMatlab->getObjectPtr(),sizeof(ISMRMRD::AcquisitionHeader)*num_headers);
         mxSetField(mxstruct,0,"headers",mxheaders);
     }
  
     auto mxIsLastPacket = mxCreateNumericMatrix(1, 1, mxINT8_CLASS, mxREAL);
     mxSetData(mxIsLastPacket, isLastPacket);
-    
     
 	// Initialize a string for matlab commands
 	std::string cmd;
@@ -408,21 +396,19 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 	const char* fieldnames[3] = {"data","reference", "isLastPacket"};
 	auto reconArray = mxCreateStructArray(1,&nencoding_spaces,3,fieldnames);
 
-    ///////////////////////////////////
-
     mxSetField(reconArray,0,"data",mxstruct);
     mxSetField(reconArray,0,"isLastPacket",mxIsLastPacket);
     
-    high_resolution_clock::time_point time3 = high_resolution_clock::now();
+//     high_resolution_clock::time_point time3 = high_resolution_clock::now();
     
     engPutVariable(engine_, "recon_data", reconArray);
     
-    high_resolution_clock::time_point time4 = high_resolution_clock::now();
+//     high_resolution_clock::time_point time4 = high_resolution_clock::now();
     
     cmd = "[imageQ,bufferQ] = matgadget.run_process(recon_data); matgadget.emptyQ();";
     send_matlab_command(cmd);
     
-    high_resolution_clock::time_point time5 = high_resolution_clock::now();
+//     high_resolution_clock::time_point time5 = high_resolution_clock::now();
 
     ///////////////////////// FINITION //////////////////////////
 	// Get the size of the gadget's queue
@@ -475,11 +461,6 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 	mxArray* bufferQ = engGetVariable(engine_,"bufferQ");
     
 	qlen = mxGetNumberOfElements(bufferQ);
-// 	if (debug_mode_) {
-// 		GDEBUG("Buffer Queue size: %d \n", qlen);
-//         GDEBUG("Image Queue size: %d \n", qlen);
-//         GDEBUG("Number of ndims %i \n"  ,ndims);
-//     }
 
 	for (mwIndex idx = 0; idx <qlen; idx++){
 
@@ -508,28 +489,27 @@ int MatlabBucketReconGadget::process(GadgetContainerMessage<IsmrmrdAcquisitionBu
 
 	m1->release();
     
-    high_resolution_clock::time_point time6 = high_resolution_clock::now();
-
-    
+//     high_resolution_clock::time_point time6 = high_resolution_clock::now();
+//     
 //     clock_t CPS = CLOCKS_PER_SEC;
-    duration<double> time_span1 = duration_cast<duration<double>>(time1 - exitTime_);
-    duration<double> time_span2 = duration_cast<duration<double>>(time2 - time1);
-    duration<double> time_span3 = duration_cast<duration<double>>(time3 - time2);
-    duration<double> time_span4 = duration_cast<duration<double>>(time4 - time3);
-    duration<double> time_span5 = duration_cast<duration<double>>(time5 - time4);
-    duration<double> time_span6 = duration_cast<duration<double>>(time6 - time5);
-    
-    //     exitTime_ = std::clock();
-    exitTime_ = high_resolution_clock::now();
-    
-    std::cout   <<   "----------------- Execution times [s] -----------------"
-                << "\nOutside process   : " << time_span1.count()
-                << "\nBucket to raw data: " << time_span2.count()
-                << "\nRaw data to mxdata: " << time_span3.count()
-                << "\nmxdata transfer   : " << time_span4.count()
-                << "\nMATLAB extraction : " << time_span5.count()
-                << "\nFinition          : " << time_span6.count()
-                << "\n-------------------------------------------------------\n";
+//     duration<double> time_span1 = duration_cast<duration<double>>(time1 - exitTime_);
+//     duration<double> time_span2 = duration_cast<duration<double>>(time2 - time1);
+//     duration<double> time_span3 = duration_cast<duration<double>>(time3 - time2);
+//     duration<double> time_span4 = duration_cast<duration<double>>(time4 - time3);
+//     duration<double> time_span5 = duration_cast<duration<double>>(time5 - time4);
+//     duration<double> time_span6 = duration_cast<duration<double>>(time6 - time5);
+//     
+//     exitTime_ = high_resolution_clock::now();
+//     
+//     std::cout   <<   "----------------- Execution times [s] -----------------"
+//                 << "\nOutside process   : " << time_span1.count()
+//                 << "\nBucket to raw data: " << time_span2.count()
+//                 << "\nRaw data to mxdata: " << time_span3.count()
+//                 << "\nmxdata transfer   : " << time_span4.count()
+//                 << "\nMATLAB extraction : " << time_span5.count()
+//                 << "\nFinition          : " << time_span6.count()
+//                 << "\n-------------------------------------------------------\n";
+     
 
     return GADGET_OK;
   }

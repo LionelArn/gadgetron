@@ -393,7 +393,7 @@ namespace Gadgetron{
     //We will keep track of the triggers we encounter
     trigger_events_++;
 
-    GDEBUG("Trigger (%d) occurred, sending out %d buckets\n", trigger_events_, buckets_.size());
+//     GDEBUG("Trigger (%d) occurred, sending out %d buckets\n", trigger_events_, buckets_.size());
     //Pass all buckets down the chain
     for (map_type_::iterator it = buckets_.begin(); it != buckets_.end(); it++) {
       if (it->second) {

@@ -118,6 +118,7 @@ namespace Gadgetron{
         std::string classname_;
         std::string startcmd_;
         bool debug_mode_;
+        bool first_packet_;
 
         high_resolution_clock::time_point exitTime_;
         
